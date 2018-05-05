@@ -5,7 +5,7 @@
 #
 #AUTHORS: Benoit Parmentier,Hichem Omrani                                            
 #DATE CREATED: 05/09/2018 
-#DATE MODIFIED: 05/10/2018
+#DATE MODIFIED: 05/11/2018
 #Version: 1
 #PROJECT: LUCC LISER modeling
 #TO DO: provide options and functions to take in raster inputs
