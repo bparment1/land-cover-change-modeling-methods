@@ -1,17 +1,82 @@
+####################################   Land cover change methods sampling study   #######################################
+############################  Analyse using time series and fire locations  #######################################
+#This script performs analyzes to examine the effect of sampling strategies on land cover change modeling performance.
+#
+#
+#AUTHORS: Hichem Omrani, Benoit Parmentier                                             
+#DATE CREATED: 05/09/2018 
+#DATE MODIFIED: 05/09/2018
+#Version: 1
+#PROJECT: LUCC LISER modeling
+#TO DO:
+#
+#COMMIT: reorganization of code
+#
+#################################################################################################
+
+###Loading R library and packages                                                      
+
+library(sp) # spatial/geographfic objects and functions
+library(rgdal) #GDAL/OGR binding for R with functionalities
+library(spdep) #spatial analyses operations, functions etc.
+library(gtools) # contains mixsort and other useful functions
+library(maptools) # tools to manipulate spatial data
+library(parallel) # parallel computation, part of base package no
+library(rasterVis) # raster visualization operations
+library(raster) # raster functionalities
+library(forecast) #ARIMA forecasting
+library(xts) #extension for time series object and analyses
+library(zoo) # time series object and analysis
+library(lubridate) # dates functionality
+library(colorRamps) #contains matlab.like color palette
+library(rgeos) #contains topological operations
+library(sphet) #contains spreg, spatial regression modeling
+library(BMS) #contains hex2bin and bin2hex, Bayesian methods
+library(bitops) # function for bitwise operations
+library(foreign) # import datasets from SAS, spss, stata and other sources
+library(gdata) #read xls, dbf etc., not recently updated but useful
+library(classInt) #methods to generate class limits
+library(plyr) #data wrangling: various operations for splitting, combining data
+library(gstat) #spatial interpolation and kriging methods
+library(readxl) #functionalities to read in excel type data
+library(psych) #pca/eigenvector decomposition functionalities
+library(sf)
+
+###### Functions used in this script
+
+#function_preprocessing_and_analyses <- "fire_alaska_analyses_preprocessing_functions_03102017.R" #PARAM 1
+#function_analyses <- "exercise2_fire_alaska_analyses_functions_03232017.R" #PARAM 1
+script_path <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cover-change-modeling-methods/scripts"
+#source(file.path(script_path,function_preprocessing_and_analyses)) #source all functions used in this script 1.
+#source(file.path(script_path,function_analyses)) #source all functions used in this script 1.
+
+# Call all needed functions used to perform land use analysis, data normalisation, data split, calibration, validation, mapping ... 
+
+#source("needed_funtions1.R")
+source(file.path(script_path,"needed_functions1_05092018.R"))
+
+source(file.path(script_path,"main_for_3studies_05092018.R"))
+source(file.path(script_path,"mapping_05092018.R"))
+
+#####  Parameters and argument set up ###########
+
+
 ##############
 ## Muskegon 
 ##############
 
+Muskegon_data_file_name<- "MuskegonData.mat"
+
 # setwd("//crc/Mildred/Mobility/Hichem/EMS-big data paper-March2018/R codes-EMS paper/")
 
-setwd("//crc/profiles/RedirectFolders/hichem/Desktop/EMS-big data paper-March2018/R codes-EMS paper/")
+in_dir <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cover-change-modeling-methods/data"
 
-source("main_for_3studies.R")
+#setwd("//crc/profiles/RedirectFolders/hichem/Desktop/EMS-big data paper-March2018/R codes-EMS paper/")
+setwd(in_dir)
 
-source("mapping.R")
-
-r = read_data("MuskegonData.mat", 6:11, 14, 4, 5, 0, 1) 
-
+### We need to change this input and use a shapefile or series of tiff with the geographic coordinates
+#r = read_data("MuskegonData.mat", 6:11, 14, 4, 5, 0, 1) 
+r <- read_data(file.path(in_dir,Muskegon_data_file_name),6:11, 14, 4, 5, 0, 1)
 N = 1  # number of  replications 
 
 # result <- list()
