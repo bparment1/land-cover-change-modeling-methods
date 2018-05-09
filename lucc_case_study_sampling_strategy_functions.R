@@ -31,29 +31,38 @@ for(pack in p) {install_package(pack)}
 
 # read_data is a function to read a dataset in MATLAB format (mat file)
 
-read_data <- function(matfile, xvr, yvr, IndLU_t1, IndLU_t2, CodeNU, CodeU){
+read_data <- function(matfile, xvr, yvr, IndLU_t1, IndLU_t2, CodeNU, CodeU,in_dir=NULL){
+  #d
 
-	   inputFile1 = paste("data/", matfile, sep="") 
-         data1 = loadMat(inputFile1)
-	   data1 = data1[complete.cases(data1), ]
+  if(is.null(in_dir)){
+    #inputFile1 = paste("data/", matfile, sep="")
+    inputFile1 <- file.path("./data",matilfile)
+  }else{
+    inputFile1 <- file.path(in_dir,matfile)
+  }
+         
+  data1 = loadMat(inputFile1)
+	   
+  #View(data1)
+  data1 = data1[complete.cases(data1), ]
 
-########################################
-# initialisation 
-# xvr = 6:11; yvr = 14; ratio = 0.7
+  ########################################
+  # initialisation 
+  # xvr = 6:11; yvr = 14; ratio = 0.7
 
-# m = length(xvr)
+  # m = length(xvr)
 
-change1    =  data1[ ((data1[,IndLU_t1]==CodeNU) & (data1[,IndLU_t2]==CodeU)) ,] # 4 and 5
-no_change1 =  data1[ (data1[,IndLU_t1]==CodeNU & data1[,IndLU_t2]==CodeNU) ,]
-# exc_layer1 =  data1[ ( (data1[,IndLU_t1]==CodeU)  & (data1[,IndLU_t2]==CodeNU) ) | ( (data1[,IndLU_t1]==CodeU)  & (data1[,IndLU_t2]==CodeU) ),] 
+  change1    =  data1[ ((data1[,IndLU_t1]==CodeNU) & (data1[,IndLU_t2]==CodeU)) ,] # 4 and 5
+  no_change1 =  data1[ (data1[,IndLU_t1]==CodeNU & data1[,IndLU_t2]==CodeNU) ,]
+  # exc_layer1 =  data1[ ( (data1[,IndLU_t1]==CodeU)  & (data1[,IndLU_t2]==CodeNU) ) | ( (data1[,IndLU_t1]==CodeU)  & (data1[,IndLU_t2]==CodeU) ),] 
 
-# rrr = balanced_dataset(change1, no_change1, xvr, yvr) ####
-# ch = rrr$change 						  ###
-# no_ch = rrr$no_change			                    ### 
+  # rrr = balanced_dataset(change1, no_change1, xvr, yvr) ####
+  # ch = rrr$change 						  ###
+  # no_ch = rrr$no_change			                    ### 
 
-r = list(ch = change1, no_ch = no_change1)
+  r = list(ch = change1, no_ch = no_change1)
 
-return(r)
+  return(r)
 
 }
 
