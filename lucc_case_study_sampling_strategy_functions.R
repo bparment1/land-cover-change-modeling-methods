@@ -1,7 +1,7 @@
 
 # clear all existing objects  
 
-rm(list = ls())
+#rm(list = ls()) #loosing all the input parameters if left 
 
 # Function to Install and Load R Packages
 
@@ -27,7 +27,7 @@ for(pack in p) {install_package(pack)}
 
 # Call all needed functions used to perform land use analysis, data normalisation, data split, calibration, validation, mapping ... 
 
-source("needed_funtions1.R")
+#source("needed_funtions1.R")
 
 # read_data is a function to read a dataset in MATLAB format (mat file)
 
