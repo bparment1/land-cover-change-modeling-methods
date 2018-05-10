@@ -61,18 +61,47 @@ source(file.path(script_path,"mapping_05092018.R"))
 #####  Parameters and argument set up ###########
 
 
-##############
-## Muskegon 
-##############
-
-Muskegon_data_file_name<- "MuskegonData.mat"
-
 # setwd("//crc/Mildred/Mobility/Hichem/EMS-big data paper-March2018/R codes-EMS paper/")
 
 in_dir <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cover-change-modeling-methods/data"
+out_dir <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cover-change-modeling-methods/outputs"
 
 #setwd("//crc/profiles/RedirectFolders/hichem/Desktop/EMS-big data paper-March2018/R codes-EMS paper/")
-setwd(in_dir)
+
+Muskegon_data_file_name<- "MuskegonData.mat"
+Boston_data_file_name <- "Boston_dataset123.mat"
+Boston_data_file_name <- "change_and_no_change_sewi.mat" 
+
+
+#region coordinate reference system: we need to find out this information for each region/site
+CRS_reg <- "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
+
+file_format <- ".tif" #PARAM5
+NA_flag_val <-  -9999 
+out_suffix <-"ltm_and_sampling_005092018" #output suffix for the files and ouptu folder #PARAM 8
+create_out_dir_param=TRUE #PARAM9
+
+################# START SCRIPT ###############################
+
+### PART : READ AND PREPARE DATA FOR ANALYSES #######
+
+## First create an output directory
+
+if(is.null(out_dir)){
+  out_dir <- dirname(in_dir) #output will be created in the input dir
+}
+
+out_suffix_s <- out_suffix #can modify name of output suffix
+if(create_out_dir_param==TRUE){
+  out_dir <- create_dir_fun(out_dir,out_suffix_s)
+  setwd(out_dir)
+}else{
+  setwd(out_dir) #use previoulsy defined directory
+}
+
+##############
+## PART 2: process and analyse Muskegon 
+##############
 
 ### We need to change this input and use a shapefile or series of tiff with the geographic coordinates
 #r = read_data("MuskegonData.mat", 6:11, 14, 4, 5, 0, 1) 
