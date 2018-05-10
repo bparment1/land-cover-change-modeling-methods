@@ -55,7 +55,7 @@ script_path <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cove
 #source("needed_funtions1.R")
 source(file.path(script_path,"needed_functions1_05092018.R"))
 
-source(file.path(script_path,"main_for_3studies_05092018.R"))
+source(file.path(script_path,"main_for_3studies_05092018b.R"))
 source(file.path(script_path,"mapping_05092018.R"))
 
 #####  Parameters and argument set up ###########
@@ -76,7 +76,23 @@ setwd(in_dir)
 
 ### We need to change this input and use a shapefile or series of tiff with the geographic coordinates
 #r = read_data("MuskegonData.mat", 6:11, 14, 4, 5, 0, 1) 
-r <- read_data(file.path(in_dir,Muskegon_data_file_name),6:11, 14, 4, 5, 0, 1)
+undebug(read_data)
+
+#r <- read_data(file.path(in_dir,Muskegon_data_file_name),6:11, 14, 4, 5, 0, 1)
+
+#this is in main_for_3studies_05092018.R
+
+r<- read_data(matfile=Muskegon_data_file_name,
+          xvr=6:11, 
+          yvr=14, 
+          IndLU_t1=4, 
+          IndLU_t2=5, 
+          CodeNU=0, 
+          CodeU=1,
+          in_dir=in_dir)
+  
+class(r)  
+View(r[[1]])
 N = 1  # number of  replications 
 
 # result <- list()
@@ -86,9 +102,27 @@ N = 1  # number of  replications
 
 # for (i in 1:length(spl)) {
 
+debug(run_ltm)
+#debugging in: run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, splitdt)
+#debug at /home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cover-change-modeling-methods/scripts/main_for_3studies_05092018b.R#67: {
+
+names(r)
+View(r$ch) #change data
+
+test <- run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3,splitdt)
+
+
 results_mus_RS = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, splitdt))
 results_mus_SR_eqP = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, stratified_eqP))
 results_mus_SR_invP = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, stratified_invP))
+
+
+##### Error here:
+#> results_mus_SR_invP = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, stratified_invP))
+#Show Traceback
+
+#Rerun with Debug
+#Error in runif(nrow(dt)) : invalid arguments 
 
 result_mus_RS      = fct_result(results_mus_RS, N)
 result_mus_SR_eqP  = fct_result(results_mus_SR_eqP, N)
@@ -117,9 +151,20 @@ result_1 <- rbind(SC1=result_mus_RS$mean, SC2=result_mus_SR_eqP$mean, SC3=result
 ### Boston 	       : to check from here 
 ##############
 
-source("main_for_3studies.R")
+#source("main_for_3studies.R")
 
-source("mapping.R")
+#source("mapping.R")
+
+Boston_data_file_name <- "Boston_dataset123.mat"
+
+r2 <- read_data(matfile=Boston_data_file_name,
+              xvr=1:6, 
+              yvr=11, 
+              IndLU_t1=7, 
+              IndLU_t2=8, 
+              CodeNU=1, 
+              CodeU=2,
+              in_dir=in_dir)
 
 r2 = read_data("Boston_dataset123.mat", 1:6, 11, 7, 8, 1, 2) 
 
@@ -181,3 +226,6 @@ result_3 <- rbind(SC1=result_mus_RS$mean, SC2=result_mus_SR_eqP$mean, SC3=result
 # mapping_error_map(results_sewi[,1]$newT_cl, results_sewi[,1]$errors_ltm_cluster, 9, 10, c("red", "darkorchid4", "green", "darkgoldenrod1"), "SEWI", "FigErrorMapSewi_cl4", "(B)", c("H", "CR", "FA", "M"))
 # mapping_toc(results_sewi[,1]$toc_ltm, "SEWI", "FigTocSewi4", "(A)")
 # mapping_toc(results_sewi[,1]$toc_ltm_cluster, "SEWI", "FigTocSewi_cl4", "(B)")
+
+
+###############################################  End of script #########################################
