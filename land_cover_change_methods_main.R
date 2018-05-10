@@ -5,7 +5,7 @@
 #
 #AUTHORS: Hichem Omrani, Benoit Parmentier                                             
 #DATE CREATED: 05/09/2018 
-#DATE MODIFIED: 05/09/2018
+#DATE MODIFIED: 05/10/2018
 #Version: 1
 #PROJECT: LUCC LISER modeling
 #TO DO:
@@ -84,7 +84,6 @@ Muskegon_data_file_name<- "MuskegonData.mat"
 Boston_data_file_name <- "Boston_dataset123.mat"
 Boston_data_file_name <- "change_and_no_change_sewi.mat" 
 
-
 #region coordinate reference system: we need to find out this information for each region/site
 CRS_reg <- "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
 
@@ -95,7 +94,7 @@ create_out_dir_param=TRUE #PARAM9
 
 ################# START SCRIPT ###############################
 
-### PART : READ AND PREPARE DATA FOR ANALYSES #######
+### PART 1 : READ AND PREPARE DATA FOR ANALYSES #######
 
 ## First create an output directory
 
@@ -140,7 +139,8 @@ class(r$ch)
 
 muskegon_data_df <- as.data.frame(r$ch)
 dim(r$ch) #what is the last column/
-names(muskegon_data_df) <- c("id","x","y","LU78","LU98","x1","x2","x3","x4","x5","x6","x7")
+
+names(muskegon_data_df) <- c("id","x","y","LU78","LU98","x1","x2","x3","x4","x5","x6","x7","outcome")
 View(muskegon_data_df)
 #--- 
 #  2. Muskegon-County dataset (cells with 100m resolution)
@@ -173,18 +173,22 @@ undebug(run_ltm)
 
 names(r)
 head(r$ch) #change data
+#xvr : covariates?
+#  yvr: response?
+#  indLU_t1: land cover type at time T1
+#IndLU_t2: land cover type at time T2
+#codeNU: ?
+#  codeU: ?
 
 test <- run_ltm(change1=r$ch, 
                 nochange1=r$no_ch, 
-                xvr=6:11, 
-                m=length(6:11), 
-                yvr=14, 
-                ratio=0.7, 
-                K=3,
-                sampling_name=splitdt)
+                xvr=6:11,  #covariates
+                m=length(6:11), #?
+                yvr=14, #label?
+                ratio=0.7, #training testing ratio?
+                K=3, #?
+                sampling_name=splitdt)#sampling method/strategy?
 
-run_ltm <- function(change1, no_change1, xvr, m, yvr, ratio, K, sampling_name) { # IndLU_t1, IndLU_t2, CodeNU, CodeU
-  
 results_mus_RS = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, splitdt))
 results_mus_SR_eqP = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, stratified_eqP))
 results_mus_SR_invP = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, stratified_invP))
