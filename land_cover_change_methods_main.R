@@ -1,5 +1,5 @@
 ####################################   Land cover change methods sampling study   #######################################
-############################  Analyse using time series and fire locations  #######################################
+############################  Comparing methods and sampling strategy for LUCC  #######################################
 #This script performs analyzes to examine the effect of sampling strategies on land cover change modeling performance.
 #
 #
@@ -179,15 +179,16 @@ head(r$ch) #change data
 #IndLU_t2: land cover type at time T2
 #codeNU: ?
 #  codeU: ?
-
+#run_ltm <- function(change1, no_change1, xvr, m, yvr, ratio, K, sampling_name) { # IndLU_t1, IndLU_t2, CodeNU, CodeU
+  
 test <- run_ltm(change1=r$ch, 
-                nochange1=r$no_ch, 
+                no_change1=r$no_ch, 
                 xvr=6:11,  #covariates
                 m=length(6:11), #?
                 yvr=14, #label?
                 ratio=0.7, #training testing ratio?
                 K=3, #?
-                sampling_name=splitdt)#sampling method/strategy?
+               sampling_name=splitdt)#sampling method/strategy? # Note that a function is passed here!!!
 
 results_mus_RS = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, splitdt))
 results_mus_SR_eqP = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, stratified_eqP))
