@@ -151,6 +151,142 @@ run_ltm <- function(change1, no_change1, xvr, m, yvr, ratio, K, sampling_name) {
   return(res)
 }
 
+#### This is the function that generates predictions using different methods: 
+#-neural network
+#-logistic
+#-randomForest
+#
+run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K, 
+                                   sampling_name,model_opt="ltm",data_df=NULL,
+                                   names_col=NULL,out_dir=NULL,out_suffix=NULL) { # IndLU_t1, IndLU_t2, CodeNU, CodeU
+  # 
+  # This functions runs a neural network model with binary input data.
+  # INPUTS:
+  # 1) change1: change part of the dataset
+  # 2) no_change2: no change part of the dataset
+  # 3) xvr: index range for the covariates used in the model
+  # 4) m: number of covariates
+  # 5) yvr: index for the y variable
+  
+  ################# Start script ####################
+  
+  if(is.null(out_dir)){
+    out_dir <- getwd()
+  }
+  if(is.null(out_suffix)){
+    out_suffix <-""
+  }
+  
+  #########################
+  #### Part 1: generate training and testing and run LTM
+  
+  ### Careful sampling name is a function!!!!!
+  if(is.null(data_df)){
+    data_df = rbind( cbind(change1, rep(1, nrow(change1)) ), #adding a variable, change: 1 if changed
+                     cbind(no_change1, rep(0, nrow(no_change1) ))) ###  #populating with 0 for no change
+    names_col <- c(names_col,"change") #adding one name
+    
+  }
+  
+  # LT  = eval(as.call(list(as.name(sampling_name), dataset1N, yvr, ratio))) 
+  # FUN <- match.fun(sampling_name) 
+  
+  #### ?
+  #debug(sampling_name)!!! This is a function
+  LT = sampling_name(data_df, yvr, ratio) # output is alist
+  T = LT$T # matrix of data for testing
+  L = LT$T # matrix of data for training
+  
+  ########################################
+  
+  #run_model_fun()
+  
+  #### THis function run LTM (nnet) for training and testing
+  if(model_opt=="ltm"){
+    ### This is a user defined function, rescaling
+    dataset1N <- fn.normalize(dataset1, xvr, yvr) # dataset1, scaling by min and max: x- min(x)/(max (x) -min(x))
+    # data split  according to the sampling strategy 
+    
+    newT = fnLUCAnalysis_maxP(L, T, xvr, yvr, m, threshold) # dataset1N; dataset1N, T, rbind(L,T)
+    #newT is a matrix with same size but two more columns, one for the activation and one for the hardening into one and zero
+    ###
+  }
+  
+  if(model_opt!="ltm"){
+    #test_glm <- run_model_fun(data_df=list_data_training,
+    #                          model_formula_str = model_formula_str,
+    #                          model_opt="logistic",
+    #                          data_testing=list_data_testing,
+    #                          num_cores=num_cores,
+    #                          out_dir=out_dir,
+    #                          out_suffix=out_suffix)
+    
+    #
+    
+    L_df <- as.data.frame(L)
+    #dim(L)
+    #dim(data_df)
+    
+    names(L_df)<- names_col
+    T_df <- as.data.frame(T)
+    names(T_df)<- names_col
+    
+    #### generate formula for modeling
+    y_var <- names_col[yvr]
+    L_df[[y_var]] <- as.factor(L_df[[y_var]]) #this is needed for randomForest to get a classification
+    T_df[[y_var]] <- as.factor(T_df[[y_var]])
+    explanatory_variables <- names_col[xvr] #covariate
+    
+    right_side_formula <- paste(explanatory_variables,collapse = " + ")
+    model_formula_str <- paste0(y_var," ~ ",right_side_formula)
+    
+    num_cores <- 1
+    #out_dir <-
+    browser() #this is a break point
+    
+    test_glm <- run_model_fun(data_df=L_df, #note this can be a list
+                              model_formula_str = model_formula_str,
+                              model_opt=model_opt, #"logistic",
+                              data_testing=T_df, #note this can be a list
+                              num_cores=num_cores,
+                              out_dir=out_dir,
+                              out_suffix=out_suffix)
+    
+    ### Now transform output into newT
+    #newT is a matrix with same size but two more columns, one for the activation 
+    #and one for the hardening into one and zero
+    newT <- test_glm
+    ###
+    
+  }
+  
+  ###########################
+  ###### Part 2: generate accuracy metrics #####
+  
+  ### Crosstabutlation of observed versus predicted
+  cm = table(newT[,yvr], newT[,yvr+2]) 
+  
+  print("cross-tab from the LTM model: ")
+  print(cm)
+  
+  errors = apply(newT, 1, metrics, yvr, yvr+2)
+  
+  # Total Operating Characteristic - TOC and ROC curves
+  
+  tocd <- TOC(newT[,yvr], newT[,yvr+2], mask=NULL, nthres = 100)
+  
+  pcm = pcm_evaluation(cm)
+  # mean(pcm)
+  
+  ##### This is the return object with all the results
+  res= list(pcm_ltm = pcm, 
+            cm_ltm = cm, 
+            errors_ltm = errors, 
+            toc_ltm =tocd,  
+            change_ltm = change1, no_change_ltm = no_change1, newT = newT)
+  
+  return(res)
+}
 
 fct_result <-  function (res_case, IT) { # IT is the number of replications 
   
