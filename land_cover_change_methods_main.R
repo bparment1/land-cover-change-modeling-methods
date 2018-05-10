@@ -44,6 +44,19 @@ library(sf)
 
 ###### Functions used in this script
 
+create_dir_fun <- function(outDir,out_suffix=NULL){
+  #if out_suffix is not null then append out_suffix string
+  if(!is.null(out_suffix)){
+    out_name <- paste("output_",out_suffix,sep="")
+    outDir <- file.path(outDir,out_name)
+  }
+  #create if does not exists
+  if(!file.exists(outDir)){
+    dir.create(outDir)
+  }
+  return(outDir)
+}
+
 #function_preprocessing_and_analyses <- "fire_alaska_analyses_preprocessing_functions_03102017.R" #PARAM 1
 #function_analyses <- "exercise2_fire_alaska_analyses_functions_03232017.R" #PARAM 1
 script_path <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cover-change-modeling-methods/scripts"
@@ -54,7 +67,6 @@ script_path <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cove
 
 #source("needed_funtions1.R")
 source(file.path(script_path,"needed_functions1_05092018.R"))
-
 source(file.path(script_path,"main_for_3studies_05092018b.R"))
 source(file.path(script_path,"mapping_05092018.R"))
 
@@ -105,7 +117,7 @@ if(create_out_dir_param==TRUE){
 
 ### We need to change this input and use a shapefile or series of tiff with the geographic coordinates
 #r = read_data("MuskegonData.mat", 6:11, 14, 4, 5, 0, 1) 
-undebug(read_data)
+#undebug(read_data)
 
 #r <- read_data(file.path(in_dir,Muskegon_data_file_name),6:11, 14, 4, 5, 0, 1)
 
@@ -121,9 +133,33 @@ r<- read_data(matfile=Muskegon_data_file_name,
           in_dir=in_dir)
   
 class(r)  
-View(r[[1]])
+#View(r[[1]])
 N = 1  # number of  replications 
 
+class(r$ch)
+
+muskegon_data_df <- as.data.frame(r$ch)
+dim(r$ch) #what is the last column/
+names(muskegon_data_df) <- c("id","x","y","LU78","LU98","x1","x2","x3","x4","x5","x6","x7")
+View(muskegon_data_df)
+#--- 
+#  2. Muskegon-County dataset (cells with 100m resolution)
+#--- 
+#  column1: id of cell
+#column2: xcoordinate
+#column3: ycoordinate
+#column4: LU in 1978 (0 for non-urban and 1 for urban; LU in time 1978 could be added as input in the model)
+#column5: LU in 1898 (0 for non-urban and 1 for urban)
+
+#column6: x1 (X={x1, ..., x7} are the set of drivers in 1978)
+#column7: x2
+#column8: x3
+#column9: x4
+#column10: x5
+#column11: x6
+#column12: x7
+
+-------------------------------
 # result <- list()
 
 
@@ -131,16 +167,24 @@ N = 1  # number of  replications
 
 # for (i in 1:length(spl)) {
 
-debug(run_ltm)
+undebug(run_ltm)
 #debugging in: run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, splitdt)
 #debug at /home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cover-change-modeling-methods/scripts/main_for_3studies_05092018b.R#67: {
 
 names(r)
-View(r$ch) #change data
+head(r$ch) #change data
 
-test <- run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3,splitdt)
+test <- run_ltm(change1=r$ch, 
+                nochange1=r$no_ch, 
+                xvr=6:11, 
+                m=length(6:11), 
+                yvr=14, 
+                ratio=0.7, 
+                K=3,
+                sampling_name=splitdt)
 
-
+run_ltm <- function(change1, no_change1, xvr, m, yvr, ratio, K, sampling_name) { # IndLU_t1, IndLU_t2, CodeNU, CodeU
+  
 results_mus_RS = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, splitdt))
 results_mus_SR_eqP = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, stratified_eqP))
 results_mus_SR_invP = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, stratified_invP))
@@ -183,6 +227,7 @@ result_1 <- rbind(SC1=result_mus_RS$mean, SC2=result_mus_SR_eqP$mean, SC3=result
 #source("main_for_3studies.R")
 
 #source("mapping.R")
+#r2 = read_data("Boston_dataset123.mat", 1:6, 11, 7, 8, 1, 2) 
 
 Boston_data_file_name <- "Boston_dataset123.mat"
 
@@ -195,7 +240,25 @@ r2 <- read_data(matfile=Boston_data_file_name,
               CodeU=2,
               in_dir=in_dir)
 
-r2 = read_data("Boston_dataset123.mat", 1:6, 11, 7, 8, 1, 2) 
+boston_data_df <- as.data.frame(r2$ch)
+names(boston_data_df) <- c("id","x","y","LU78","LU98","x1","x2","x3","x4","x5","x6","x7")
+
+head(boston_data_df)
+
+#--- 
+#  1. Boston dataset (cells with 2m resolution)
+#--- 
+#  x: xcoordiante
+#y: ycoordinate
+#values 1971: land use class in 1971 (1 for non-urban)
+#values 1999: land use class in 1999 (1 for non-urban and 2 for urban)
+#set of input drivers
+#1. xden71
+#2. xdetr71
+#3. xdeu71
+#4. xdewa71
+#5. xdu71
+#6. xdwa71
 
 N = 1  # number of  replications 
 
@@ -226,6 +289,37 @@ result_2 <- rbind(SC1=result_mus_RS$mean, SC2=result_mus_SR_eqP$mean, SC3=result
 ### Sewi 
 ##############
 
+#--- 
+#  3. South-Eastern-Wisconsin dataset (cells with 30m resolution)
+#--- 
+#  column1: xcoordinate
+#column2: ycoordinate
+#column3: LU in 1990
+#column4: LU in 2000
+#column5: LU in 2006
+
+#column6: x1 (X=(x1, ..., x17) are the set of drivers in 1990)
+#column7: x2
+#column8: x3
+#column9: x4
+#column10: x5
+#column11: x6
+#column12: x7
+#column13: x8
+#column14: x9
+#column15: x10
+#column16: x11
+#column17: x12
+#column18: x13
+#column19: x14
+#column20: x15
+#column21: x16
+#column22: x17
+
+#column23: Land use_t1 in 7 classs
+#column24: LU in 1990 (0 for non-change and 1 for change) 
+#column25: LU in 2000 (0 for non-change and 1 for change)
+#column26: cluster ID 
 
 r3 = read_data("change_and_no_change_sewi.mat", 6:22, 23, 4, 5, 0, 1) 
 
