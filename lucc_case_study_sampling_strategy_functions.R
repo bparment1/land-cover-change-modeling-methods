@@ -244,6 +244,7 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     #out_dir <-
     browser() #this is a break point
     
+    debug(test_glm)
     test_glm <- run_model_fun(data_df=L_df, #note this can be a list
                               model_formula_str = model_formula_str,
                               model_opt=model_opt, #"logistic",
@@ -251,8 +252,13 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
                               num_cores=num_cores,
                               out_dir=out_dir,
                               out_suffix=out_suffix)
+    names(test_glm)
+    str(test_glm$mod[[1]])
     
-    ### Now transform output into newT
+    y_fitted <- test_glm$mod[[1]]$fitted.values #predicted on training
+    y_predicted <- test_glm$predicted_val #predicted on testing
+    
+    ### Now transform out put into newT
     #newT is a matrix with same size but two more columns, one for the activation 
     #and one for the hardening into one and zero
     newT <- test_glm
