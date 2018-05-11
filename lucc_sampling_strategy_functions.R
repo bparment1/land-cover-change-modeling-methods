@@ -52,7 +52,7 @@ return(data)
 
 
 #################################################################################### 
-# data split: SAMPLING STRATEGIES
+# data split
 #################################################################################### 
 
 balanced_dataset  <- function(change, no_change, xvr, yvr){
@@ -62,43 +62,29 @@ result= list(change = change, no_change = r$L)
 return(result)
 }
 
-#### This is a function for sampling: split data into training and testing.
+splitdt <- function( dt, yvr, spl) # random split to L and T sets 
+{
+# this function serves to split the dat into training, and testing sets 
+# dat sets. It draws randomly
+# trainingPart and testPart are the share of the full datSet dedicated 
+# for training and test  Data set.
 
-splitdt <- function( dt, yvr, spl,seed_number=10)  {
-  # Goal random split to L and T sets
-  # this function serves to split the data into training (L), and testing sets (T) 
-  # datasets. It draws randomly
-  # trainingPart and testPart are the share of the full datSet dedicated 
-  # for training and test  Data set.
-  # INPUTS:
-  # 1)
-  # 2)
-  #
-  # OUTPUTS:
-  
-  
-  # Authors: Hichem Omrani, Benoit Parmentier
-  # CREATED:
-  # MODIFIED: 10/05/2018
-  
-  ################## START FUNCTION #############
-  
-  ##  From percentage to fraction
-  while (spl >= 1) 
-    spl <- spl/100 
-  
-  set.seed(seed_number)
-  
-  smp <- runif(nrow(dt)) < spl
-  L = dt[smp,] 
-  T = dt[!smp,]
-  
-  ###########################################################################
-  #training , and testing sets construction with a random draw 
-  #without repitition
-  ###########################################################################
-  r <- list(L=L, T=T, yvr=yvr)
-  return(r)
+##  From percentage to fraction
+while (spl >= 1) 
+spl <- spl/100 
+
+set.seed(10)
+
+smp <- runif(nrow(dt)) < spl
+L = dt[smp,] 
+T = dt[!smp,]
+
+###########################################################################
+#training , and testing sets construction with a random draw 
+#without repitition
+###########################################################################
+r <- list(L=L, T=T, yvr=yvr)
+return(r)
 }
 
 fn.splitSRS <-function(inputFile, yvr, ratio){ 
@@ -219,9 +205,9 @@ LTM_calibration <- function(trainingSetj, xvrN, yvr, m) {
 
   library("nnet") # load nnet library 
 
-  xx <- trainingSetj[,xvrN] # select covariates
-  yy <- trainingSetj[,yvr] # select outcome var
-  m = length(xvrN) #number of covariates
+  xx <- trainingSetj[,xvrN]
+  yy <- trainingSetj[,yvr]
+  m = length(xvrN)
 
   ## dummies = table(1:length(yy),as.factor(yy))  
 
@@ -232,10 +218,10 @@ LTM_calibration <- function(trainingSetj, xvrN, yvr, m) {
   # , maxit = nbitemax, decay = 1.0e-5, size= m, trace = F, linout = F)
 
   mynnet <- nnet(xx, yy, 
-			size = m, # yy instead of dummies , size is number of units in hidden layers
+			size = m, # yy instead of dummies 
                   softmax = F, # T
-                  rang = 0.1, # initial random weight range [-rang,rang]
-                  maxit = 2000, # maximum number of iterations
+                  rang = 0.1, 
+                  maxit = 2000, 
                   model=TRUE,
                   decay=1.0e-5)
 
@@ -281,20 +267,20 @@ pcm_evaluation <- function(cm){
   return( round(c(pcm0 = PCM_0, pcm1 = PCM_1),3) )
 }
 
-#### Error metrics generation from 2x2 confusion matrix
+
 metrics <- function(vect, i, j){
 val = 0 
 if ((vect[i] == vect[j]) & (vect[i] ==1) )
-val = 1  # tp : true positives
+val = 1  # tp
 else 
 if ((vect[i] == vect[j]) & (vect[i] ==0) )
-val = 2 # tn # true negatives
+val = 2 # tn
 else 
 if ((vect[i] != vect[j]) & (vect[i] ==0) )
-val = 3 # fp : false positives
+val = 3 # fp
 else 
 if ((vect[i] != vect[j]) & (vect[i] ==1) )
-val = 4 # fn: falses negatives
+val = 4 # fn
 return(val)
 }
 
@@ -353,20 +339,7 @@ fnLUCAnalysis <- function(l, t, xvr, yvr, m) {
 fnLUCAnalysis_maxP <- function(l, t, xvr, yvr, m, th) {
   #Data preprocessing
   
-  ##INPUTS
-  #1) l: training data as a matrix
-  #2) t: testing data as a matrix
-  #3) xvr: indices for the covariates
-  #4) yvr: index for the y variable (outcome)
-  #5) m: size of the matrix for the covariates
-  #6) th: threshold value
-  
-  # OUTPUTS
-  # 1)
-  
-  ####### START SCRIPT ######
-  
-  set.seed(2)#??? this should be set earlier on
+  set.seed(2)
   nn = LTM_calibration(l, xvr, yvr, m) 
   
   ## prediction <- predict(nn, t[,xvr])
@@ -557,5 +530,4 @@ dev.off()
 ###############################
 
 }
-
 ################################## end of mapping  ##################################
