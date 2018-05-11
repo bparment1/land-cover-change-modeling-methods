@@ -204,9 +204,17 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
   #### THis function run LTM (nnet) for training and testing
   if(model_opt=="ltm"){
     ### This is a user defined function, rescaling
-    dataset1N <- fn.normalize(dataset1, xvr, yvr) # dataset1, scaling by min and max: x- min(x)/(max (x) -min(x))
+    #dataset1N <- fn.normalize(dataset1, xvr, yvr) # dataset1, scaling by min and max: x- min(x)/(max (x) -min(x))
     # data split  according to the sampling strategy 
+    L_N <- fn.normalize(L, xvr, yvr) # dataset1, scaling by min and max: x- min(x)/(max (x) -min(x))
+    T_N <- fn.normalize(T, xvr, yvr) # dataset1, scaling by min and max: x- min(x)/(max (x) -min(x))
     
+    #what is the use of the variable threshold?
+    #############
+    threshold = round(nrow(T[T[,yvr]==1, ]) / nrow(T), 2)  # T ; dataset1N
+    print("th = ") 
+    print(threshold) 
+    #############
     newT = fnLUCAnalysis_maxP(L, T, xvr, yvr, m, threshold) # dataset1N; dataset1N, T, rbind(L,T)
     #newT is a matrix with same size but two more columns, one for the activation and one for the hardening into one and zero
     ###
@@ -244,7 +252,6 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     #out_dir <-
     browser() #this is a break point
     
-    debug(test_glm)
     test_glm <- run_model_fun(data_df=L_df, #note this can be a list
                               model_formula_str = model_formula_str,
                               model_opt=model_opt, #"logistic",
@@ -252,15 +259,13 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
                               num_cores=num_cores,
                               out_dir=out_dir,
                               out_suffix=out_suffix)
-    names(test_glm)
-    str(test_glm$mod[[1]])
     
-    y_fitted <- test_glm$mod[[1]]$fitted.values #predicted on training
-    y_predicted <- test_glm$predicted_val #predicted on testing
-    
-    ### Now transform out put into newT
+    ### Now transform output into newT
     #newT is a matrix with same size but two more columns, one for the activation 
     #and one for the hardening into one and zero
+    names(test_glm)
+    names(newT)
+    
     newT <- test_glm
     ###
     
