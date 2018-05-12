@@ -204,33 +204,17 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
   #### THis function run LTM (nnet) for training and testing
   if(model_opt=="ltm"){
     ### This is a user defined function, rescaling
-    #dataset1N <- fn.normalize(dataset1, xvr, yvr) # dataset1, scaling by min and max: x- min(x)/(max (x) -min(x))
+    dataset1N <- fn.normalize(dataset1, xvr, yvr) # dataset1, scaling by min and max: x- min(x)/(max (x) -min(x))
     # data split  according to the sampling strategy 
-    L_N <- fn.normalize(L, xvr, yvr) # dataset1, scaling by min and max: x- min(x)/(max (x) -min(x))
-    T_N <- fn.normalize(T, xvr, yvr) # dataset1, scaling by min and max: x- min(x)/(max (x) -min(x))
     
-    #what is the use of the variable threshold?
-    #############
-    threshold = round(nrow(T[T[,yvr]==1, ]) / nrow(T), 2)  # T ; dataset1N
-    print("th = ") 
-    print(threshold) 
-    #############
     newT = fnLUCAnalysis_maxP(L, T, xvr, yvr, m, threshold) # dataset1N; dataset1N, T, rbind(L,T)
     #newT is a matrix with same size but two more columns, one for the activation and one for the hardening into one and zero
     ###
+    yvr_predicted <- yvr +2
+    
   }
   
   if(model_opt!="ltm"){
-    #test_glm <- run_model_fun(data_df=list_data_training,
-    #                          model_formula_str = model_formula_str,
-    #                          model_opt="logistic",
-    #                          data_testing=list_data_testing,
-    #                          num_cores=num_cores,
-    #                          out_dir=out_dir,
-    #                          out_suffix=out_suffix)
-    
-    #
-    
     L_df <- as.data.frame(L)
     #dim(L)
     #dim(data_df)
@@ -250,8 +234,8 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     
     num_cores <- 1
     #out_dir <-
-    browser() #this is a break point
     
+    #debug(test_glm)
     test_glm <- run_model_fun(data_df=L_df, #note this can be a list
                               model_formula_str = model_formula_str,
                               model_opt=model_opt, #"logistic",
@@ -259,16 +243,42 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
                               num_cores=num_cores,
                               out_dir=out_dir,
                               out_suffix=out_suffix)
+    #names(test_glm)
+    #str(test_glm$mod[[1]])
     
-    ### Now transform output into newT
+    browser() #this is a break point
+    
+    if(model_opt=="logistic"){
+      y_fitted <- test_glm$mod[[1]]$fitted.values #predicted on training
+      y_predicted <- test_glm$predicted_val #predicted on testing
+      ### hardening the soft prediction:
+      ### find the threshold based on quantity!!!
+      quantity_change <- sum(L_df[,yvr]) #sum of ones
+      
+      y_predicted_ranked <- sort(y_predicted)
+      y_fitted_ranked <- sort(y_fitted)
+
+      y_predicted_hard <- y_predicted_ranked[1:quantity_change] 
+      y_fitted_hard <- y_fitted_ranked[1:quantity_change] 
+      
+    }(model_opt=="randomForest"){
+      #add here, not running right now on the laptop
+    }
+
+    ### store the values
+    L_df$y_fitted <- y_fitted
+    T_df$y_pred <- y_predicted
+
+    L_df$y_fitted_hard <- y_fitted_hard
+    T_df$y_pred_hard <- y_predicted_hard
+    
+    ### Now transform out put into newT
     #newT is a matrix with same size but two more columns, one for the activation 
     #and one for the hardening into one and zero
-    names(test_glm)
-    names(newT)
-    
-    newT <- test_glm
+    newT <- T_df
     ###
     
+    #yvr_predicted <- yvr + 1
   }
   
   ###########################
@@ -280,9 +290,10 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
   print("cross-tab from the LTM model: ")
   print(cm)
   
-  errors = apply(newT, 1, metrics, yvr, yvr+2)
+  errors = apply(newT, 1, metrics, yvr, yvr_predicted)
   
   # Total Operating Characteristic - TOC and ROC curves
+  # Note that it should be yvr +1 for TOC? since this is the activation
   
   tocd <- TOC(newT[,yvr], newT[,yvr+2], mask=NULL, nthres = 100)
   
