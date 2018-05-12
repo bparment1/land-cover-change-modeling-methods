@@ -67,7 +67,7 @@ script_path <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cove
 
 #source("needed_funtions1.R")
 source(file.path(script_path,"needed_functions1_05102018.R"))
-source(file.path(script_path,"main_for_3studies_05112018b.R")) 
+source(file.path(script_path,"main_for_3studies_05122018.R")) 
 source(file.path(script_path,"mapping_05092018.R"))
 source(file.path(script_path,"modeling_methods_lucc_functions_05112018.R"))
 
