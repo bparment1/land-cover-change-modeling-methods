@@ -66,9 +66,10 @@ script_path <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cove
 # Call all needed functions used to perform land use analysis, data normalisation, data split, calibration, validation, mapping ... 
 
 #source("needed_funtions1.R")
-source(file.path(script_path,"needed_functions1_05092018.R"))
-source(file.path(script_path,"main_for_3studies_05092018b.R"))
+source(file.path(script_path,"needed_functions1_05102018.R"))
+source(file.path(script_path,"main_for_3studies_05112018b.R")) 
 source(file.path(script_path,"mapping_05092018.R"))
+source(file.path(script_path,"modeling_methods_lucc_functions_05112018.R"))
 
 #####  Parameters and argument set up ###########
 
@@ -196,9 +197,10 @@ results_mus_SR_invP = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14
 
 ####
 
-debug(run_land_change_models)
+undebug(run_land_change_models)
 names_col <- c("id","x_coord","y_coord","LU78","LU98","x1","x2","x3","x4","x5","x6","x7","y_var")
 model_opt <- "logistic"
+#model_opt <- "randomForest"
 
 results_logistic_obj <- run_land_change_models(change1=r$ch, 
                        no_change1=r$no_ch, 
@@ -210,7 +212,7 @@ results_logistic_obj <- run_land_change_models(change1=r$ch,
                        sampling_name=splitdt, #sampling method/strategy? # Note that a function is passed here!!!
                        model_opt=model_opt,
                        data_df=NULL,
-                       names_col=NULL,
+                       names_col=names_col,
                        out_dir=NULL,
                        out_suffix=NULL) 
   
