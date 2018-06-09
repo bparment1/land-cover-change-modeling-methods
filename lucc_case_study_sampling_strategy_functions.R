@@ -250,18 +250,20 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     
     if(model_opt=="logistic"){
       y_fitted <- test_glm$mod[[1]]$fitted.values #predicted on training
-      y_predicted <- test_glm$predicted_val #predicted on testing
+      y_predicted <- (test_glm$predicted_val[[1]]) #predicted on testing
       ### hardening the soft prediction:
       ### find the threshold based on quantity!!!
-      quantity_change <- sum(L_df[,yvr]) #sum of ones
+      quantity_change <- sum(as.numeric(L_df[,yvr])) #sum of ones
       
       y_predicted_ranked <- sort(y_predicted)
       y_fitted_ranked <- sort(y_fitted)
 
       y_predicted_hard <- y_predicted_ranked[1:quantity_change] 
       y_fitted_hard <- y_fitted_ranked[1:quantity_change] 
-      
-    }(model_opt=="randomForest"){
+      #also keep the probability!!
+    }
+    
+    if(model_opt=="randomForest"){
       #add here, not running right now on the laptop
     }
 
