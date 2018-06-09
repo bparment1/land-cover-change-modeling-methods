@@ -5,7 +5,7 @@
 #
 #AUTHORS: Hichem Omrani, Benoit Parmentier                                             
 #DATE CREATED: 05/09/2018 
-#DATE MODIFIED: 05/11/2018
+#DATE MODIFIED: 06/09/2018
 #Version: 1
 #PROJECT: LUCC LISER modeling
 #TO DO:
@@ -67,7 +67,7 @@ script_path <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cove
 
 #source("needed_funtions1.R")
 source(file.path(script_path,"needed_functions1_05102018.R"))
-source(file.path(script_path,"main_for_3studies_05122018.R")) 
+source(file.path(script_path,"main_for_3studies_06092018.R")) 
 source(file.path(script_path,"mapping_05092018.R"))
 source(file.path(script_path,"modeling_methods_lucc_functions_05112018.R"))
 
@@ -90,7 +90,7 @@ CRS_reg <- "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +e
 
 file_format <- ".tif" #PARAM5
 NA_flag_val <-  -9999 
-out_suffix <-"ltm_and_sampling_005092018" #output suffix for the files and ouptu folder #PARAM 8
+out_suffix <-"ltm_and_sampling_06092018" #output suffix for the files and ouptu folder #PARAM 8
 create_out_dir_param=TRUE #PARAM9
 
 ################# START SCRIPT ###############################
@@ -123,14 +123,14 @@ if(create_out_dir_param==TRUE){
 
 #this is in main_for_3studies_05092018.R
 
-r<- read_data(matfile=Muskegon_data_file_name,
+r <- read_data(matfile=Muskegon_data_file_name, #matlabfilename
           xvr=6:11, # indices for columns containing covariates
           yvr=14, # indices for outcome variable
           IndLU_t1=4, # land cover time 1
           IndLU_t2=5, # land cover time 2
-          CodeNU=0, # code non urbain
-          CodeU=1, # code urbain
-          in_dir=in_dir)
+          CodeNU=0, # code pour categorie non urbain
+          CodeU=1, # code pour categorie urbain
+          in_dir=in_dir) #input dir
   
 class(r)  
 #View(r[[1]])
@@ -143,6 +143,7 @@ dim(r$ch) #what is the last column/
 
 names(muskegon_data_df) <- c("id","x_coord","y_coord","LU78","LU98","x1","x2","x3","x4","x5","x6","x7","y_var")
 View(muskegon_data_df)
+
 #--- 
 #  2. Muskegon-County dataset (cells with 100m resolution)
 #--- 
@@ -162,7 +163,6 @@ View(muskegon_data_df)
 
 -------------------------------
 # result <- list()
-
 
 # spl = seq(0.5, 0.8, 0.1)
 
