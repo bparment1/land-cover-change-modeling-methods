@@ -215,7 +215,7 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
   }
   
   if(model_opt!="ltm"){
-    L_df <- as.data.frame(L)
+    L_df <- as.data.frame(L) #calibration/training data
     #dim(L)
     #dim(data_df)
     
@@ -236,7 +236,7 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     #out_dir <-
     
     #debug(test_glm)
-    test_glm <- run_model_fun(data_df=L_df, #note this can be a list
+    lucc_model_obj <- run_model_fun(data_df=L_df, #note this can be a list
                               model_formula_str = model_formula_str,
                               model_opt=model_opt, #"logistic",
                               data_testing=T_df, #note this can be a list
@@ -246,21 +246,33 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     #names(test_glm)
     #str(test_glm$mod[[1]])
     
-    browser() #this is a break point
+    #browser() #this is a break point
     
     if(model_opt=="logistic"){
-      y_fitted <- test_glm$mod[[1]]$fitted.values #predicted on training
-      y_predicted <- (test_glm$predicted_val[[1]]) #predicted on testing
+      y_fitted <- lucc_model_obj$mod[[1]]$fitted.values #predicted on training
+      y_predicted <- (lucc_model_obj$predicted_val[[1]]) #predicted on testing
       ### hardening the soft prediction:
       ### find the threshold based on quantity!!!
-      quantity_change <- sum(as.numeric(L_df[,yvr])) #sum of ones
-      
-      y_predicted_ranked <- sort(y_predicted)
-      y_fitted_ranked <- sort(y_fitted)
 
-      y_predicted_hard <- y_predicted_ranked[1:quantity_change] 
-      y_fitted_hard <- y_fitted_ranked[1:quantity_change] 
+      df_summary <- as.data.frame(table(as.numeric(L_df[,yvr])))
+      quantity_change <- df_summary[2,2]
+      
+      #quantity_change <- sum(as.numeric(L_df[,yvr])) #sum of ones
+      ##Not efficient with large dataset    
+      df_val <- as.data.frame(y_predicted)
+      df_val$ID <- 1:length(y_predicted)
+      
+      df_val <- arrange(df_val,desc(y_predicted))
+      #y_predicted_ranked <- sort(y_predicted)
+      #y_fitted_ranked <- sort(y_fitted)
+
+      #y_predicted_hard <- y_predicted_ranked[1:quantity_change] 
+      #y_fitted_hard <- y_fitted_ranked[1:quantity_change] 
+      
+      df_val$y_predicted_hard <- 0
+      df_val$y_predicted_ranked[1:quantity_change] <- 1:quantity_change
       #also keep the probability!!
+      df_val <- 
     }
     
     if(model_opt=="randomForest"){
