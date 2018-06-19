@@ -12,15 +12,16 @@
 # function used to read the data input file and returns the dataframe
 #################################################################################### 
 fn.read <- function(inputFile){
-# read LAND USE dataset 
-inputDF <- read.csv(file=inputFile,sep=",",header=T)
-# check the number of observations
-nrow(inputDF)
-# check the structure of the dataset
-str(inputDF)
-# rename the dataframe columns
-# colnames(inputDF) <- c("square_id","time_interval","country_code","sms_in_activity","sms_out_activity","call_in_activity","call_out_activity","internet_traffic_activity")
-return(inputDF)
+  
+  # read LAND USE dataset 
+  inputDF <- read.csv(file=inputFile,sep=",",header=T)
+  # check the number of observations
+  nrow(inputDF)
+  # check the structure of the dataset
+  str(inputDF)
+  # rename the dataframe columns
+  # colnames(inputDF) <- c("square_id","time_interval","country_code","sms_in_activity","sms_out_activity","call_in_activity","call_out_activity","internet_traffic_activity")
+  return(inputDF)
 }
 
 # read a mat file 
@@ -38,16 +39,16 @@ loadMat = function(fileName)
 #################################################################################### 
 
 normalize <- function(x){  
-x = ( x - min(x) ) / ( max(x) - min(x) )
-return(x)
+  x = ( x - min(x) ) / ( max(x) - min(x) )
+  return(x)
 }
 
 
 fn.normalize = function(data, xvr, yvr){ 
-dataN = apply(data[,xvr], 2, normalize)
-data[,xvr] = dataN
-return(data)
-# cbind(dataN, data[,yvr]) )
+  dataN = apply(data[,xvr], 2, normalize)
+  data[,xvr] = dataN
+  return(data)
+  # cbind(dataN, data[,yvr]) )
 }
 
 
@@ -56,50 +57,50 @@ return(data)
 #################################################################################### 
 
 balanced_dataset  <- function(change, no_change, xvr, yvr){
-spl_ratio = round((nrow(change) * 100) / nrow(no_change))
-r = splitdt( no_change, spl_ratio)
-result= list(change = change, no_change = r$L)
-return(result)
+  spl_ratio = round((nrow(change) * 100) / nrow(no_change))
+  r = splitdt( no_change, spl_ratio)
+  result= list(change = change, no_change = r$L)
+  return(result)
 }
 
-splitdt <- function( dt, yvr, spl) # random split to L and T sets 
-{
-# this function serves to split the dat into training, and testing sets 
-# dat sets. It draws randomly
-# trainingPart and testPart are the share of the full datSet dedicated 
-# for training and test  Data set.
-
-##  From percentage to fraction
-while (spl >= 1) 
-spl <- spl/100 
-
-set.seed(10)
-
-smp <- runif(nrow(dt)) < spl
-L = dt[smp,] 
-T = dt[!smp,]
-
-###########################################################################
-#training , and testing sets construction with a random draw 
-#without repitition
-###########################################################################
-r <- list(L=L, T=T, yvr=yvr)
-return(r)
+# random split to L and T sets 
+splitdt <- function( dt, yvr, spl){
+  # this function serves to split the dat into training, and testing sets 
+  # dat sets. It draws randomly
+  # trainingPart and testPart are the share of the full datSet dedicated 
+  # for training and test  Data set.
+  
+  ##  From percentage to fraction
+  while (spl >= 1) 
+    spl <- spl/100 
+  
+  set.seed(10)
+  
+  smp <- runif(nrow(dt)) < spl
+  L = dt[smp,] 
+  T = dt[!smp,]
+  
+  ###########################################################################
+  #training , and testing sets construction with a random draw 
+  #without repitition
+  ###########################################################################
+  r <- list(L=L, T=T, yvr=yvr)
+  return(r)
 }
 
 fn.splitSRS <-function(inputFile, yvr, ratio){ 
-# simple random sampling 
-# ratio between 0.1 and 0.9 
-# yvr: index of outcome
-
-set.seed(10)
-
-index <- sample(1:nrow(inputFile), round(ratio*nrow(inputFile)))
-train <- inputFile[index,]
-test <- inputFile[-index,]
-
-LT = list(L = train, T = test)
-return(LT)  
+  # simple random sampling 
+  # ratio between 0.1 and 0.9 
+  # yvr: index of outcome
+  
+  set.seed(10)
+  
+  index <- sample(1:nrow(inputFile), round(ratio*nrow(inputFile)))
+  train <- inputFile[index,]
+  test <- inputFile[-index,]
+  
+  LT = list(L = train, T = test)
+  return(LT)  
 }
 
 stratified = function(df, group, size) { 
@@ -269,19 +270,19 @@ pcm_evaluation <- function(cm){
 
 
 metrics <- function(vect, i, j){
-val = 0 
-if ((vect[i] == vect[j]) & (vect[i] ==1) )
-val = 1  # tp
-else 
-if ((vect[i] == vect[j]) & (vect[i] ==0) )
-val = 2 # tn
-else 
-if ((vect[i] != vect[j]) & (vect[i] ==0) )
-val = 3 # fp
-else 
-if ((vect[i] != vect[j]) & (vect[i] ==1) )
-val = 4 # fn
-return(val)
+  val = 0 
+  if ((vect[i] == vect[j]) & (vect[i] ==1) )
+    val = 1  # tp
+  else 
+    if ((vect[i] == vect[j]) & (vect[i] ==0) )
+      val = 2 # tn
+  else 
+    if ((vect[i] != vect[j]) & (vect[i] ==0) )
+        val = 3 # fp
+  else 
+    if ((vect[i] != vect[j]) & (vect[i] ==1) )
+        val = 4 # fn
+  return(val)
 }
 
 # k-means clustering 
@@ -442,92 +443,93 @@ return(mybiglist)
 #################################################################
 mapping123 <- function(xcoord_index, ycoord_index){
 
-############################### map of LUC of Boston area (B)
-graphics.off()
-color = c("red", "grey50")
-#tiff(filename = "Figures-Ems paper/SEWI/LUC_bis.tiff", units="in", width=5, height=7, res=1500, bg = "white", compression = 'lzw')
-pdf("Figures-Ems paper/SEWI/LUC_bis.pdf", pointsize=11) # , width=5.04, height=7.54) #  width=5.5, height=2.6
-par(mfrow=c(1,1), mar=c(4,4,2,1), mgp=c(3,1,0)*0.7, lab=c(3,3,1))
-plot(change[, xcoord_index], change[, ycoord_index], col="red", cex=0.1, xlab="", ylab="", main="(C)")
-points(no_change[, xcoord_index], no_change[, ycoord_index], col="grey50", type="p", cex=0.01, xlab="", ylab="")
-# points(exc_layer[,2], exc_layer[,3], col="grey90", type="p", cex=0.01, xlab="", ylab="")
-legend("topright", c("Urban-gain", "Non-urban persistence"), col=color, pch=15, cex=1)
-dev.off()
-###############################
-
-############################### map of LUC of Muskegon area with cells in three clusters 
-graphics.off()
-color =  c(heat.colors(3))
-tiff(filename = "Figures-Ems paper/SEWI/LUC-with-clusters_bis.tiff", units="in", width=5, height=7, res=1500, bg = "white", compression = 'lzw')
-par(mfrow=c(1,1), mar=c(4,4,2,1), mgp=c(3,1,0)*0.7, lab=c(3,3,1))
-newT_cl = as.matrix(newT_cl)
-plot(newT_cl[, xcoord_index], newT_cl[, ycoord_index], col=color[newT_cl[,yvr+1]], type="p", cex=0.1, xlab="", ylab="", main="(C)")
-# points(exc_layer[,2], exc_layer[,3], col="grey90", type="p", cex=0.1, xlab="", ylab="")
-legend("topright", c("Cluster 1", "Cluster 2", "Cluster 3"), col=color, pch=15, cex=1)
-# hits (H), misses (M), false alarms (FA), and correct rejections (CR)
-dev.off()
-###############################
-
-############################### Error map from the LTM model using the Muskegon data
-graphics.off()
-color = c("red", "darkorchid4", "green", "darkgoldenrod1") # "grey90"
-# png("Figures-Ems paper/error-map_LTM_allcells.png") 
-# pdf("Figures-Ems paper/error-map_LTM_allcells.pdf", pointsize=11) # , width=2.6, height=5.5) #  width=5.5, height=2.6
-tiff(filename = "Figures-Ems paper/SEWI/error-map_LTM_allcells.tiff", units="in", width=5, height=7, res=1500, bg = "white", compression = 'lzw')
-par(mfrow=c(1,1), mar=c(4,4,2,1), mgp=c(3,1,0)*0.7, lab=c(3,3,1))
-newT = as.matrix(newT)
-plot(newT[, xcoord_index], newT[, ycoord_index], col=color[errors], type="p", cex=0.1, xlab="", ylab="", main="(A)")
-# points(exc_layer[,2], exc_layer[,3], col="grey90", type="p", cex=0.1, xlab="", ylab="")
-legend("topright", c("H", "CR", "FA", "M"), col=color, pch=15, cex=1)
-# hits (H), misses (M), false alarms (FA), and correct rejections (CR)
-dev.off()
-###############################
-
-
-############################### Error map from the LTM-Cluster model using the Muskegon data
-newT_cl1 = as.matrix(newT_cl)
-graphics.off()
-color = c("red", "darkorchid4", "green", "darkgoldenrod1")
-# png("Figures-Ems paper/error-map_LTM_allcells.png") 
-# pdf("Figures-Ems paper/error-map_LTM_allcells.pdf", pointsize=11) # , width=2.6, height=5.5) #  width=5.5, height=2.6
-tiff(filename = "Figures-Ems paper/SEWI/error-map_LTM-Cluster_allcells.tiff", units="in", width=5, height=7, res=1500, bg = "white", compression = 'lzw')
-par(mfrow=c(1,1), mar=c(4,4,2,1), mgp=c(3,1,0)*0.7, lab=c(3,3,1))
-# plot(allN[, xcoord_index], allN[, ycoord_index], col="gray", cex=0.1, xlab="", type="b", ylab="", main="(B)")
-plot(newT_cl1[, xcoord_index], newT_cl1[, ycoord_index], col=color[errors_ltm_cluster], type="p", cex=0.1, xlab="", ylab="", main="(B)")
-# points(exc_layer[,2], exc_layer[,3], col="grey90", type="p", cex=0.1, xlab="", ylab="")
-legend("topright", c("H", "CR", "FA", "M"), col=color, pch=15, cex=1)
-# hits (H), misses (M), false alarms (FA), and correct rejections (CR)
-dev.off()
-###############################
-
-############################### TOC curve from the LTM model using the Muskegon data
-graphics.off()
-##  Width of the figure:  5.5 inches;  height:  2.6 inches
-# pdf("Figures-Ems paper/toc-curve_LTM_allcells.pdf", pointsize=11) #  width=5.5, height=2.6
-# png("Figures-Ems paper/toc-curve_LTM_allcells.png") # , width=5.5, height=5, pointsize=11)
-tiff(filename = "Figures-Ems paper/SEWI/toc-curve_LTM_allcells.tiff", units="in", width=5, height=5, res=1500, bg = "white", compression = 'lzw')
-# filename = "Figures-Ems paper/toc-curve_LTM_allcells.tiff", units="in", width=5, height=5, res=300)
-#     units = "px", pointsize = 2,
-#      bg = "white", res = 800)
-par(mfrow=c(1,1), mar=c(4,4,2,1), mgp=c(3,1,0)*0.7, lab=c(3,3,1))
-plot(tocd, main="(A)") # TOC for the LTM model (a)
-dev.off()
-###############################
-
-############################### TOC curve from the LTM-Cluster model using the Muskegon data
-
-graphics.off()
-##  Width of the figure:  5.5 inches;  height:  2.6 inches
-# pdf("Figures-Ems paper/toc-curve_LTM_allcells.pdf", pointsize=11) #  width=5.5, height=2.6
-# png("Figures-Ems paper/toc-curve_LTM_allcells.png") # , width=5.5, height=5, pointsize=11)
-tiff(filename = "Figures-Ems paper/SEWI/toc-curve_LTM-Cluster_allcells.tiff", units="in", width=5, height=5, res=1500, bg = "white", compression = 'lzw')
-# filename = "Figures-Ems paper/toc-curve_LTM_allcells.tiff", units="in", width=5, height=5, res=300)
-#     units = "px", pointsize = 2,
-#      bg = "white", res = 800)
-par(mfrow=c(1,1), mar=c(4,4,2,1), mgp=c(3,1,0)*0.7, lab=c(3,3,1))
-plot(tocd_ltm_cl, main="(B)") # TOC for the LTM-Cluster model (a)
-dev.off()
-###############################
-
+  ############################### map of LUC of Boston area (B)
+  graphics.off()
+  color = c("red", "grey50")
+  #tiff(filename = "Figures-Ems paper/SEWI/LUC_bis.tiff", units="in", width=5, height=7, res=1500, bg = "white", compression = 'lzw')
+  pdf("Figures-Ems paper/SEWI/LUC_bis.pdf", pointsize=11) # , width=5.04, height=7.54) #  width=5.5, height=2.6
+  par(mfrow=c(1,1), mar=c(4,4,2,1), mgp=c(3,1,0)*0.7, lab=c(3,3,1))
+  plot(change[, xcoord_index], change[, ycoord_index], col="red", cex=0.1, xlab="", ylab="", main="(C)")
+  points(no_change[, xcoord_index], no_change[, ycoord_index], col="grey50", type="p", cex=0.01, xlab="", ylab="")
+  # points(exc_layer[,2], exc_layer[,3], col="grey90", type="p", cex=0.01, xlab="", ylab="")
+  legend("topright", c("Urban-gain", "Non-urban persistence"), col=color, pch=15, cex=1)
+  dev.off()
+  ###############################
+  
+  ############################### map of LUC of Muskegon area with cells in three clusters 
+  graphics.off()
+  color =  c(heat.colors(3))
+  tiff(filename = "Figures-Ems paper/SEWI/LUC-with-clusters_bis.tiff", units="in", width=5, height=7, res=1500, bg = "white", compression = 'lzw')
+  par(mfrow=c(1,1), mar=c(4,4,2,1), mgp=c(3,1,0)*0.7, lab=c(3,3,1))
+  newT_cl = as.matrix(newT_cl)
+  plot(newT_cl[, xcoord_index], newT_cl[, ycoord_index], col=color[newT_cl[,yvr+1]], type="p", cex=0.1, xlab="", ylab="", main="(C)")
+  # points(exc_layer[,2], exc_layer[,3], col="grey90", type="p", cex=0.1, xlab="", ylab="")
+  legend("topright", c("Cluster 1", "Cluster 2", "Cluster 3"), col=color, pch=15, cex=1)
+  # hits (H), misses (M), false alarms (FA), and correct rejections (CR)
+  dev.off()
+  ###############################
+  
+  ############################### Error map from the LTM model using the Muskegon data
+  graphics.off()
+  color = c("red", "darkorchid4", "green", "darkgoldenrod1") # "grey90"
+  # png("Figures-Ems paper/error-map_LTM_allcells.png") 
+  # pdf("Figures-Ems paper/error-map_LTM_allcells.pdf", pointsize=11) # , width=2.6, height=5.5) #  width=5.5, height=2.6
+  tiff(filename = "Figures-Ems paper/SEWI/error-map_LTM_allcells.tiff", units="in", width=5, height=7, res=1500, bg = "white", compression = 'lzw')
+  par(mfrow=c(1,1), mar=c(4,4,2,1), mgp=c(3,1,0)*0.7, lab=c(3,3,1))
+  newT = as.matrix(newT)
+  plot(newT[, xcoord_index], newT[, ycoord_index], col=color[errors], type="p", cex=0.1, xlab="", ylab="", main="(A)")
+  # points(exc_layer[,2], exc_layer[,3], col="grey90", type="p", cex=0.1, xlab="", ylab="")
+  legend("topright", c("H", "CR", "FA", "M"), col=color, pch=15, cex=1)
+  # hits (H), misses (M), false alarms (FA), and correct rejections (CR)
+  dev.off()
+  ###############################
+  
+  
+  ############################### Error map from the LTM-Cluster model using the Muskegon data
+  newT_cl1 = as.matrix(newT_cl)
+  graphics.off()
+  color = c("red", "darkorchid4", "green", "darkgoldenrod1")
+  # png("Figures-Ems paper/error-map_LTM_allcells.png") 
+  # pdf("Figures-Ems paper/error-map_LTM_allcells.pdf", pointsize=11) # , width=2.6, height=5.5) #  width=5.5, height=2.6
+  tiff(filename = "Figures-Ems paper/SEWI/error-map_LTM-Cluster_allcells.tiff", units="in", width=5, height=7, res=1500, bg = "white", compression = 'lzw')
+  par(mfrow=c(1,1), mar=c(4,4,2,1), mgp=c(3,1,0)*0.7, lab=c(3,3,1))
+  # plot(allN[, xcoord_index], allN[, ycoord_index], col="gray", cex=0.1, xlab="", type="b", ylab="", main="(B)")
+  plot(newT_cl1[, xcoord_index], newT_cl1[, ycoord_index], col=color[errors_ltm_cluster], type="p", cex=0.1, xlab="", ylab="", main="(B)")
+  # points(exc_layer[,2], exc_layer[,3], col="grey90", type="p", cex=0.1, xlab="", ylab="")
+  legend("topright", c("H", "CR", "FA", "M"), col=color, pch=15, cex=1)
+  # hits (H), misses (M), false alarms (FA), and correct rejections (CR)
+  dev.off()
+  ###############################
+  
+  ############################### TOC curve from the LTM model using the Muskegon data
+  graphics.off()
+  ##  Width of the figure:  5.5 inches;  height:  2.6 inches
+  # pdf("Figures-Ems paper/toc-curve_LTM_allcells.pdf", pointsize=11) #  width=5.5, height=2.6
+  # png("Figures-Ems paper/toc-curve_LTM_allcells.png") # , width=5.5, height=5, pointsize=11)
+  tiff(filename = "Figures-Ems paper/SEWI/toc-curve_LTM_allcells.tiff", units="in", width=5, height=5, res=1500, bg = "white", compression = 'lzw')
+  # filename = "Figures-Ems paper/toc-curve_LTM_allcells.tiff", units="in", width=5, height=5, res=300)
+  #     units = "px", pointsize = 2,
+  #      bg = "white", res = 800)
+  par(mfrow=c(1,1), mar=c(4,4,2,1), mgp=c(3,1,0)*0.7, lab=c(3,3,1))
+  plot(tocd, main="(A)") # TOC for the LTM model (a)
+  dev.off()
+  ###############################
+  
+  ############################### TOC curve from the LTM-Cluster model using the Muskegon data
+  
+  graphics.off()
+  ##  Width of the figure:  5.5 inches;  height:  2.6 inches
+  # pdf("Figures-Ems paper/toc-curve_LTM_allcells.pdf", pointsize=11) #  width=5.5, height=2.6
+  # png("Figures-Ems paper/toc-curve_LTM_allcells.png") # , width=5.5, height=5, pointsize=11)
+  tiff(filename = "Figures-Ems paper/SEWI/toc-curve_LTM-Cluster_allcells.tiff", units="in", width=5, height=5, res=1500, bg = "white", compression = 'lzw')
+  # filename = "Figures-Ems paper/toc-curve_LTM_allcells.tiff", units="in", width=5, height=5, res=300)
+  #     units = "px", pointsize = 2,
+  #      bg = "white", res = 800)
+  par(mfrow=c(1,1), mar=c(4,4,2,1), mgp=c(3,1,0)*0.7, lab=c(3,3,1))
+  plot(tocd_ltm_cl, main="(B)") # TOC for the LTM-Cluster model (a)
+  dev.off()
+  ###############################
+  
 }
+
 ################################## end of mapping  ##################################
