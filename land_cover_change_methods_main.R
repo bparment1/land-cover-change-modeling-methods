@@ -5,7 +5,7 @@
 #
 #AUTHORS: Hichem Omrani, Benoit Parmentier                                             
 #DATE CREATED: 05/09/2018 
-#DATE MODIFIED: 06/09/2018
+#DATE MODIFIED: 06/19/2018
 #Version: 1
 #PROJECT: LUCC LISER modeling
 #TO DO:
@@ -65,9 +65,8 @@ script_path <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cove
 
 # Call all needed functions used to perform land use analysis, data normalisation, data split, calibration, validation, mapping ... 
 
-#source("needed_funtions1.R")
-source(file.path(script_path,"needed_functions1_05102018.R"))
-source(file.path(script_path,"main_for_3studies_06092018.R")) 
+source(file.path(script_path,"needed_functions1_06192018.R"))
+source(file.path(script_path,"main_for_3studies_06192018.R")) 
 source(file.path(script_path,"mapping_05092018.R"))
 source(file.path(script_path,"modeling_methods_lucc_functions_05112018.R"))
 
@@ -90,7 +89,7 @@ CRS_reg <- "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +e
 
 file_format <- ".tif" #PARAM5
 NA_flag_val <-  -9999 
-out_suffix <-"ltm_and_sampling_06092018" #output suffix for the files and ouptu folder #PARAM 8
+out_suffix <-"ltm_and_sampling_06192018" #output suffix for the files and ouptu folder #PARAM 8
 create_out_dir_param=TRUE #PARAM9
 
 ################# START SCRIPT ###############################
@@ -142,35 +141,9 @@ muskegon_data_df <- as.data.frame(r$ch)
 dim(r$ch) #what is the last column/
 
 names(muskegon_data_df) <- c("id","x_coord","y_coord","LU78","LU98","x1","x2","x3","x4","x5","x6","x7","y_var")
-View(muskegon_data_df)
+head(muskegon_data_df)
 
-#--- 
-#  2. Muskegon-County dataset (cells with 100m resolution)
-#--- 
-#  column1: id of cell
-#column2: xcoordinate
-#column3: ycoordinate
-#column4: LU in 1978 (0 for non-urban and 1 for urban; LU in time 1978 could be added as input in the model)
-#column5: LU in 1898 (0 for non-urban and 1 for urban)
-
-#column6: x1 (X={x1, ..., x7} are the set of drivers in 1978)
-#column7: x2
-#column8: x3
-#column9: x4
-#column10: x5
-#column11: x6
-#column12: x7
-
--------------------------------
-# result <- list()
-
-# spl = seq(0.5, 0.8, 0.1)
-
-# for (i in 1:length(spl)) {
-
-undebug(run_ltm)
-#debugging in: run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, splitdt)
-#debug at /home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cover-change-modeling-methods/scripts/main_for_3studies_05092018b.R#67: {
+#debug(run_ltm)
 
 names(r)
 head(r$ch) #change data
@@ -197,7 +170,7 @@ results_mus_SR_invP = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14
 
 ####
 
-undebug(run_land_change_models)
+debug(run_land_change_models)
 names_col <- c("id","x_coord","y_coord","LU78","LU98","x1","x2","x3","x4","x5","x6","x7","y_var")
 model_opt <- "logistic"
 #model_opt <- "randomForest"
@@ -379,3 +352,30 @@ result_3 <- rbind(SC1=result_mus_RS$mean, SC2=result_mus_SR_eqP$mean, SC3=result
 
 
 ###############################################  End of script #########################################
+
+
+
+#--- 
+#  2. Muskegon-County dataset (cells with 100m resolution)
+#--- 
+#  column1: id of cell
+#column2: xcoordinate
+#column3: ycoordinate
+#column4: LU in 1978 (0 for non-urban and 1 for urban; LU in time 1978 could be added as input in the model)
+#column5: LU in 1898 (0 for non-urban and 1 for urban)
+
+#column6: x1 (X={x1, ..., x7} are the set of drivers in 1978)
+#column7: x2
+#column8: x3
+#column9: x4
+#column10: x5
+#column11: x6
+#column12: x7
+
+-------------------------------
+  # result <- list()
+  
+  # spl = seq(0.5, 0.8, 0.1)
+  
+  # for (i in 1:length(spl)) {
+  
