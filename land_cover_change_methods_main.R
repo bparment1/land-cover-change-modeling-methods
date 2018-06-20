@@ -5,7 +5,7 @@
 #
 #AUTHORS: Hichem Omrani, Benoit Parmentier                                             
 #DATE CREATED: 05/09/2018 
-#DATE MODIFIED: 06/19/2018
+#DATE MODIFIED: 06/20/2018
 #Version: 1
 #PROJECT: LUCC LISER modeling
 #TO DO:
@@ -66,7 +66,7 @@ script_path <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cove
 # Call all needed functions used to perform land use analysis, data normalisation, data split, calibration, validation, mapping ... 
 
 source(file.path(script_path,"needed_functions1_06192018.R"))
-source(file.path(script_path,"main_for_3studies_06192018.R")) 
+source(file.path(script_path,"main_for_3studies_06202018b.R")) 
 source(file.path(script_path,"mapping_05092018.R"))
 source(file.path(script_path,"modeling_methods_lucc_functions_05112018.R"))
 
@@ -189,7 +189,26 @@ results_logistic_obj <- run_land_change_models(change1=r$ch,
                        out_dir=NULL,
                        out_suffix=NULL) 
   
-  
+
+debug(run_land_change_models)
+names_col <- c("id","x_coord","y_coord","LU78","LU98","x1","x2","x3","x4","x5","x6","x7","y_var")
+#model_opt <- "logistic"
+model_opt <- "randomForest"
+
+results_randomeForest_obj <- run_land_change_models(change1=r$ch, 
+                                               no_change1=r$no_ch, 
+                                               xvr=6:11,  #covariates
+                                               m=length(6:11), #?
+                                               yvr=14, #label?
+                                               ratio=0.7, #training testing ratio?
+                                               K=3, #?
+                                               sampling_name=splitdt, #sampling method/strategy? # Note that a function is passed here!!!
+                                               model_opt=model_opt,
+                                               data_df=NULL,
+                                               names_col=names_col,
+                                               out_dir=NULL,
+                                               out_suffix=NULL) 
+
 ##### Error here:
 #> results_mus_SR_invP = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14, 0.7, 3, stratified_invP))
 #Show Traceback
