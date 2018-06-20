@@ -167,7 +167,19 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
   # 3) xvr: index range for the covariates used in the model
   # 4) m: number of covariates
   # 5) yvr: index for the y variable
-  
+  # 6) ratio
+  # 7) K
+  # 8) sampling_name
+  # 9) model_opt
+  # 10) data_df
+  # 11) names_col
+  # 12) out_dir
+  # 13) out_suffix
+  #
+  # OUTPUTS:
+  #
+  #
+
   ################# Start script ####################
   
   if(is.null(out_dir)){
@@ -250,11 +262,12 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     
     if(model_opt=="logistic"){
       y_fitted <- lucc_model_obj$mod[[1]]$fitted.values #predicted on training
+      ## Based on validation
       y_predicted <- (lucc_model_obj$predicted_val[[1]]) #predicted on testing
       ### hardening the soft prediction:
       ### find the threshold based on quantity!!!
 
-      df_summary <- as.data.frame(table(as.numeric(L_df[,yvr])))
+      df_summary <- as.data.frame(table(as.numeric(T_df[,yvr])))
       quantity_change <- df_summary[2,2]
       
       #quantity_change <- sum(as.numeric(L_df[,yvr])) #sum of ones
@@ -270,9 +283,11 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
       #y_fitted_hard <- y_fitted_ranked[1:quantity_change] 
       
       df_val$y_predicted_hard <- 0
-      df_val$y_predicted_ranked[1:quantity_change] <- 1:quantity_change
-      #also keep the probability!!
-      df_val <- 
+      df_val$y_predicted_ranked <- 1:length(y_predicted)
+      
+      df_val$y_predicted_hard <- df_val$y_predicted_ranked > quantity_change
+      df_val$y_predicted_hard <- as.numeric(df_val$y_predicted_hard)
+      
     }
     
     if(model_opt=="randomForest"){
