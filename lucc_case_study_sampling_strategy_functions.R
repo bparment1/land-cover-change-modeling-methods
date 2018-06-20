@@ -247,7 +247,7 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     num_cores <- 1
     #out_dir <-
     
-    #debug(test_glm)
+    #debug(run_model_fun)
     lucc_model_obj <- run_model_fun(data_df=L_df, #note this can be a list
                               model_formula_str = model_formula_str,
                               model_opt=model_opt, #"logistic",
@@ -266,32 +266,47 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
       y_predicted <- (lucc_model_obj$predicted_val[[1]]) #predicted on testing
       ### hardening the soft prediction:
       ### find the threshold based on quantity!!!
-
-      df_summary <- as.data.frame(table(as.numeric(T_df[,yvr])))
-      quantity_change <- df_summary[2,2]
-      
-      #quantity_change <- sum(as.numeric(L_df[,yvr])) #sum of ones
-      ##Not efficient with large dataset    
-      df_val <- as.data.frame(y_predicted)
-      df_val$ID <- 1:length(y_predicted)
-      
-      df_val <- arrange(df_val,desc(y_predicted))
-      #y_predicted_ranked <- sort(y_predicted)
-      #y_fitted_ranked <- sort(y_fitted)
-
-      #y_predicted_hard <- y_predicted_ranked[1:quantity_change] 
-      #y_fitted_hard <- y_fitted_ranked[1:quantity_change] 
-      
-      df_val$y_predicted_hard <- 0
-      df_val$y_predicted_ranked <- 1:length(y_predicted)
-      
-      df_val$y_predicted_hard <- df_val$y_predicted_ranked > quantity_change
-      df_val$y_predicted_hard <- as.numeric(df_val$y_predicted_hard)
+       
+      generate_change_from_quantity <- function(y_predicted,data_df,y_obs){
+        #
+        #
+        
+        ###############
+        
+        df_summary <- as.data.frame(table(as.numeric(data_df[,y_obs])))
+        quantity_change <- df_summary[2,2]
+        
+        #quantity_change <- sum(as.numeric(L_df[,yvr])) #sum of ones
+        ##Not efficient with large dataset    
+        df_val <- as.data.frame(y_predicted)
+        df_val$ID <- 1:length(y_predicted)
+        
+        df_val <- arrange(df_val,desc(y_predicted))
+        #y_predicted_ranked <- sort(y_predicted)
+        #y_fitted_ranked <- sort(y_fitted)
+        
+        #y_predicted_hard <- y_predicted_ranked[1:quantity_change] 
+        #y_fitted_hard <- y_fitted_ranked[1:quantity_change] 
+        
+        df_val$y_predicted_hard <- 0
+        df_val$y_predicted_ranked <- 1:length(y_predicted)
+        
+        df_val$y_predicted_hard <- df_val$y_predicted_ranked > quantity_change
+        df_val$y_predicted_hard <- as.numeric(df_val$y_predicted_hard)
+        
+        return(df_val)
+      }
       
     }
     
     if(model_opt=="randomForest"){
       #add here, not running right now on the laptop
+      
+      y_fitted <- lucc_model_obj$mod[[1]]$fitted.values #predicted on training
+      ## Based on validation
+      y_predicted <- (lucc_model_obj$predicted_val[[1]]) #predicted on testing
+      
+      
     }
 
     ### store the values
