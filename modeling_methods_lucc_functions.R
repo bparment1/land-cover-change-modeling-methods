@@ -55,7 +55,8 @@ run_logistic_fun <- function(i,model_formula_str,data_df){
   return(mod_glm)
 }
 
-run_random_forest_fun <- function(i, model_formula_str, data_df){
+run_random_forest_fun <- function(i, model_formula_str, data_df,
+                                  ntree=100,nodesize=5){
   #Function to run random forest model
   #We use randomForest in this implementation.
   
@@ -68,7 +69,8 @@ run_random_forest_fun <- function(i, model_formula_str, data_df){
                          type="classification",
                          data=data_input,
                          importance = TRUE, 
-                         ntree = 10001, 
+                         ntree = ntree,
+                         nodesize= nodesize,
                          proximity=TRUE) 
   
   #Predict with new or similar data, need to ask for probability otherwise the output is {0,1}
@@ -151,9 +153,19 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,data_testing=NULL,
   
   #browser()
   if(model_opt=="randomForest"){
+    if(!is.null(model_param)){
+      ntree<- model_param$ntree
+      nodesize <- model_param$nodsize
+    }else{
+      ntree <- 100
+      node_size<-1
+    }
+    #ntree <- 30
+    #nodesize <- 200
     
-    #debug(run_random_forest_fun)
-    #list_mod <- run_random_forest_fun(1,model_formula_str,data_df)
+    debug(run_random_forest_fun)
+    
+    list_mod <- run_random_forest_fun(1,model_formula_str,data_df,ntree=ntree,nodesize = nodesize)
     
     list_mod <- mclapply(1:length(data_df),
                          FUN= run_random_forest_fun,
