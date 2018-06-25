@@ -5,7 +5,7 @@
 #
 #AUTHORS: Benoit Parmentier,Hichem Omrani                                            
 #DATE CREATED: 05/09/2018 
-#DATE MODIFIED: 05/11/2018
+#DATE MODIFIED: 06/25/2018
 #Version: 1
 #PROJECT: LUCC LISER modeling
 #TO DO: provide options and functions to take in raster inputs
@@ -101,7 +101,7 @@ predict_random_forest_val <- function(i,list_mod,data_testing){
   return(predicted_val)
 }
 
-run_model_fun <- function(data_df,model_formula_str,model_opt,data_testing=NULL,num_cores=1,out_dir=".",out_suffix=""){
+run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,data_testing=NULL,num_cores=1,out_dir=".",out_suffix=""){
   #data_df: input data.frame with data used in modeling
   #model_formula_str
   #model_opt: "logistic","randomForest"
@@ -162,8 +162,10 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,data_testing=NULL,
     }
     #ntree <- 30
     #nodesize <- 200
+    #nodesize <- 500
+    #nodesize <- 1000
     
-    debug(run_random_forest_fun)
+    #undebug(run_random_forest_fun)
     
     list_mod <- run_random_forest_fun(1,model_formula_str,data_df,ntree=ntree,nodesize = nodesize)
     
