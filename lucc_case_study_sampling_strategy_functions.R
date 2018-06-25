@@ -1,3 +1,18 @@
+####################################   Land cover change methods  #######################################
+############################  Predicting and evaluating models for LUCC and other applications  #######################################
+#This script contains functions to land change.
+#
+#
+#AUTHORS: Benoit Parmentier,Hichem Omrani                                            
+#DATE CREATED: 05/09/2018 
+#DATE MODIFIED: 06/25/2018
+#Version: 1
+#PROJECT: LUCC LISER modeling
+#TO DO: provide options and functions to take in raster inputs
+#
+#COMMIT: reorganization of code
+#
+#################################################################################################
 
 # clear all existing objects  
 
@@ -246,11 +261,13 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     
     num_cores <- 1
     #out_dir <-
+    browser()
     
     #debug(run_model_fun)
     lucc_model_obj <- run_model_fun(data_df=L_df, #note this can be a list
                               model_formula_str = model_formula_str,
                               model_opt=model_opt, #"logistic",
+                              model_param=NULL,
                               data_testing=T_df, #note this can be a list
                               num_cores=num_cores,
                               out_dir=out_dir,
@@ -298,6 +315,8 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
       }
       
     }
+    
+    browser()
     
     if(model_opt=="randomForest"){
       #add here, not running right now on the laptop
