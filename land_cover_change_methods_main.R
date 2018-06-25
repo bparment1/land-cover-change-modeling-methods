@@ -5,7 +5,7 @@
 #
 #AUTHORS: Hichem Omrani, Benoit Parmentier                                             
 #DATE CREATED: 05/09/2018 
-#DATE MODIFIED: 06/20/2018
+#DATE MODIFIED: 06/25/2018
 #Version: 1
 #PROJECT: LUCC LISER modeling
 #TO DO:
@@ -18,7 +18,7 @@
 
 library(sp) # spatial/geographfic objects and functions
 library(rgdal) #GDAL/OGR binding for R with functionalities
-library(gstat) #spatial interpolation and kriging methods
+#library(gstat) #spatial interpolation and kriging methods
 library(spdep) #spatial analyses operations, functions etc.
 library(gtools) # contains mixsort and other useful functions
 library(maptools) # tools to manipulate spatial data
@@ -59,24 +59,24 @@ create_dir_fun <- function(outDir,out_suffix=NULL){
 
 #function_preprocessing_and_analyses <- "fire_alaska_analyses_preprocessing_functions_03102017.R" #PARAM 1
 #function_analyses <- "exercise2_fire_alaska_analyses_functions_03232017.R" #PARAM 1
-script_path <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cover-change-modeling-methods/scripts"
+script_path <- "/media/dan/Data/land-cover-change-modeling-methods/scripts"
 #source(file.path(script_path,function_preprocessing_and_analyses)) #source all functions used in this script 1.
 #source(file.path(script_path,function_analyses)) #source all functions used in this script 1.
 
 # Call all needed functions used to perform land use analysis, data normalisation, data split, calibration, validation, mapping ... 
 
-source(file.path(script_path,"needed_functions1_06192018.R"))
-source(file.path(script_path,"main_for_3studies_06202018b.R")) 
+source(file.path(script_path,"needed_functions1_06252018.R"))
+source(file.path(script_path,"main_for_3studies_06252018.R")) 
 source(file.path(script_path,"mapping_05092018.R"))
-source(file.path(script_path,"modeling_methods_lucc_functions_06202018.R"))
+source(file.path(script_path,"modeling_methods_lucc_functions_06252018.R"))
 
 #####  Parameters and argument set up ###########
 
 
 # setwd("//crc/Mildred/Mobility/Hichem/EMS-big data paper-March2018/R codes-EMS paper/")
 
-in_dir <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cover-change-modeling-methods/data"
-out_dir <- "/home/bparmentier/c_drive/Users/bparmentier/Data/LISER/land-cover-change-modeling-methods/outputs"
+in_dir <- "/media/dan/Data/land-cover-change-modeling-methods/data"
+out_dir <- "/media/dan/Data/land-cover-change-modeling-methods/outputs"
 
 #setwd("//crc/profiles/RedirectFolders/hichem/Desktop/EMS-big data paper-March2018/R codes-EMS paper/")
 
@@ -89,7 +89,7 @@ CRS_reg <- "+proj=aea +lat_1=55 +lat_2=65 +lat_0=50 +lon_0=-154 +x_0=0 +y_0=0 +e
 
 file_format <- ".tif" #PARAM5
 NA_flag_val <-  -9999 
-out_suffix <-"ltm_and_sampling_06192018" #output suffix for the files and ouptu folder #PARAM 8
+out_suffix <-"ltm_and_sampling_06252018" #output suffix for the files and ouptu folder #PARAM 8
 create_out_dir_param=TRUE #PARAM9
 
 ################# START SCRIPT ###############################
@@ -190,7 +190,7 @@ results_logistic_obj <- run_land_change_models(change1=r$ch,
                        out_suffix=NULL) 
   
 
-debug(run_land_change_models)
+undebug(run_land_change_models)
 names_col <- c("id","x_coord","y_coord","LU78","LU98","x1","x2","x3","x4","x5","x6","x7","y_var")
 #model_opt <- "logistic"
 model_opt <- "randomForest"
