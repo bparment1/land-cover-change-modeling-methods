@@ -41,7 +41,7 @@ library(lattice)                             # Plot package
 library(caret)                               # Modeling with assessment hold outs, CV folds and data splitting
 library(gplots)                              # Plot package
 library(sf)
-
+library(ranger)                              # efficient random forest with parallelization   
 #
 run_logistic_fun <- function(i,model_formula_str,data_df){
   #Function to run logistic model
@@ -62,16 +62,36 @@ run_random_forest_fun <- function(i, model_formula_str, data_df,
   
   ### Begin script
   
-  data_input<-data_df[[i]]; 
+  data_input<-data_df[[i]] 
   
+  #memory.limit(10 * 10^10) #windows specific, think about that option later
   
-  mod_rf <- randomForest(as.formula(model_formula_str),
-                         type="classification",
-                         data=data_input,
-                         importance = TRUE, 
-                         ntree = ntree,
-                         nodesize= nodesize,
-                         proximity=TRUE) 
+  #mod_rf <- randomForest(as.formula(model_formula_str),
+  #                       type="classification",
+  #                       data=data_input,
+  #                       importance = TRUE, 
+  #                       ntree = ntree,
+  #                       nodesize= nodesize,
+  #                       proximity=TRUE) 
+  
+  mod_rf <- ranger(formula=as.formula(model_formula_str), 
+                      data = data_input, 
+                      num.trees = ntree, 
+                      #mtry = , 
+                      write.forest = FALSE, 
+                      probability = FALSE, 
+                      num.threads = 2, 
+                      importance="none", 
+                      save.memory = FALSE)
+  
+  #rf.ranger <- ranger(dependent.variable.name="class", 
+  #                    data = data1, 
+  #                    num.trees = 1001, mtry = 236, 
+  #                    write.forest = FALSE, 
+  #                    probability = FALSE, 
+  #                    num.threads = 2, 
+  #                    importance="none", 
+  #                    save.memory = TRUE)
   
   #Predict with new or similar data, need to ask for probability otherwise the output is {0,1}
   #predicted_rf_mat <- predict(mod_rf, data=data, type="prob")
@@ -167,8 +187,7 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
     
     #undebug(run_random_forest_fun)
     
-    list_mod <- run_random_forest_fun(1,model_formula_str,data_df,ntree=ntree,nodesize = nodesize)
-    
+     
     list_mod <- mclapply(1:length(data_df),
                          FUN= run_random_forest_fun,
                          model_formula_str=model_formula_str,
@@ -178,6 +197,7 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
     
     if(!is.null(data_testing)){
       #
+      test <- predict_random_forest_val(1,list_mod=mod_rf,data_testing=data_testing)
       
       list_predicted_val <- mclapply(1:length(data_df),
                                      FUN=predict_random_forest_val,
