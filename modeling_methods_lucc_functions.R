@@ -78,7 +78,7 @@ run_random_forest_fun <- function(i, model_formula_str, data_df,
                       data = data_input, 
                       num.trees = ntree, 
                       #mtry = , 
-                      write.forest = FALSE, 
+                      write.forest = TRUE, # save ranger.forest object, this is required for prediction 
                       probability = FALSE, 
                       num.threads = 2, 
                       importance="none", 
@@ -113,8 +113,9 @@ predict_random_forest_val <- function(i,list_mod,data_testing){
   #
   data_v<-data_testing[[i]]; 
   mod_rf <- list_mod[[i]];
-  predicted_rf_mat <- predict(mod_rf, data=data_v, type="prob");
-  #predicted_val <- predict(mod_rf,newdata=data_v,type='response');
+  #predicted_rf_mat <- predict(mod_rf, data=data_v, type="prob");
+  predicted_rf_mat <- predict(mod_rf,data=data_v,type="response")
+   #predicted_val <- predict(mod_rf,newdata=data_v,type='response');
   predicted_val <- predicted_rf_mat[,2]
   #index_val <- predicted_rf_mat[,2] #probabilities
   
@@ -122,11 +123,23 @@ predict_random_forest_val <- function(i,list_mod,data_testing){
 }
 
 run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,data_testing=NULL,num_cores=1,out_dir=".",out_suffix=""){
-  #data_df: input data.frame with data used in modeling
-  #model_formula_str
-  #model_opt: "logistic","randomForest"
-  #out_dir
-  #out_suffix
+  #
+  # Goal: Function to run models using logistic and randomForest methods.
+  #
+  # CREATED: 05/09/2018
+  # MODIFIED: 06/27/2018
+  # AUTHORS: Benoit Parmentier
+  # INPUTS:
+  # 1) data_df: input data.frame with data used in modeling
+  # 2) model_formula_str: modele formula 
+  # 3) model_opt: "logistic","randomForest"
+  # 4) model_param: parameters for the models (e.g. nodesize etc.)
+  # 5) out_dir: output directory
+  # 6) out_suffix: output suffix
+  # OUTPUTS
+  # 1)
+  
+  ###################### Start script #################
   
   ### Make a list if data is not a list:
   if(class(data_df)!="list"){
@@ -187,17 +200,32 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
     
     #undebug(run_random_forest_fun)
     
+    #list_mod <- run_random_forest_fun(1,model_formula_str,data_df,ntree=ntree,nodesize = nodesize)
      
-    list_mod <- mclapply(1:length(data_df),
+    #list_mod <- mclapply(1:length(data_df),
+    #                     FUN= run_random_forest_fun,
+    #                     model_formula_str=model_formula_str,
+    #                     data_df=data_df,
+    #                     ntree=ntree,
+    #                     nodesize=nodesize,
+    #                     mc.preschedule = FALSE,
+    #                     mc.cores =num_cores)
+    
+    #Error in mcfork(detached) : 
+    #  unable to fork, possible reason: Cannot allocate memory
+    list_mod <- lapply(1:length(data_df),
                          FUN= run_random_forest_fun,
                          model_formula_str=model_formula_str,
                          data_df=data_df,
-                         mc.preschedule = FALSE,
-                         mc.cores =num_cores)
+                         ntree=ntree,
+                         nodesize=nodesize)
+                         #mc.preschedule = FALSE,
+                         #mc.cores =num_cores)
     
     if(!is.null(data_testing)){
       #
-      test <- predict_random_forest_val(1,list_mod=mod_rf,data_testing=data_testing)
+      debug(predict_random_forest_val)
+      test <- predict_random_forest_val(1,list_mod=list_mod[[1]],data_testing=data_testing)
       
       list_predicted_val <- mclapply(1:length(data_df),
                                      FUN=predict_random_forest_val,
