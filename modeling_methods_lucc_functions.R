@@ -108,18 +108,34 @@ predict_logistic_val <- function(i,list_mod,data_testing){
   return(predicted_val)
 }
 
-predict_random_forest_val <- function(i,list_mod,data_testing){
+predict_random_forest_val <- function(i,list_mod,data_testing,model_param=NULL){
   #Predictions using random forest model
   #
+  if(!is.null(model_param)){
+    predict_all <- model_param$predict_all #Keep prediction for every trees 
+  }else{
+    predict_all=F
+  }
+  
   data_v<-data_testing[[i]]; 
   mod_rf <- list_mod[[i]];
   #predicted_rf_mat <- predict(mod_rf, data=data_v, type="prob");
-  predicted_rf_mat <- predict(mod_rf,data=data_v,type="response")
-   #predicted_val <- predict(mod_rf,newdata=data_v,type='response');
-  predicted_val <- predicted_rf_mat[,2]
+  predicted_rf_obj <- predict(mod_rf,
+                              data=data_v,
+                              predict.all= predict_all,
+                              type='response') #for ranger package random forest
+  
+  
+  predicted_all <- (predicted_rf_obj$predictions) - 1 #reclassifify in 0-1
+  
+  predicted_val <- rowMeans(predicted_all)
+  histogram(predicted_val)
   #index_val <- predicted_rf_mat[,2] #probabilities
   
-  return(predicted_val)
+  predicted_obj <- list(predicted_val,predicted_all,predicted_rf_obj)
+  names(predicted_obj) <- c("predicted_val","predicted_all","predicted_rf_obj")
+  
+  return(predicted_obj)
 }
 
 run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,data_testing=NULL,num_cores=1,out_dir=".",out_suffix=""){
