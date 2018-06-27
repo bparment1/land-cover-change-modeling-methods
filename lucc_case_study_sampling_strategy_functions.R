@@ -172,7 +172,8 @@ run_ltm <- function(change1, no_change1, xvr, m, yvr, ratio, K, sampling_name) {
 #-randomForest
 #
 run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K, 
-                                   sampling_name,model_opt="ltm",data_df=NULL,
+                                   sampling_name,model_opt="ltm",
+                                   model_param=NULL,data_df=NULL,
                                    names_col=NULL,out_dir=NULL,out_suffix=NULL) { # IndLU_t1, IndLU_t2, CodeNU, CodeU
   # 
   # This functions runs a neural network model with binary input data.
@@ -182,14 +183,16 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
   # 3) xvr: index range for the covariates used in the model
   # 4) m: number of covariates
   # 5) yvr: index for the y variable
-  # 6) ratio
-  # 7) K
+  # 6) ratio: training/testing ratio
+  # 7) K:
   # 8) sampling_name
-  # 9) model_opt
-  # 10) data_df
-  # 11) names_col
-  # 12) out_dir
-  # 13) out_suffix
+  # 9) model_opt: model to run, current options: ltm (neuralnet), logistic, randomForest
+  # 10) model_param: additional parameters for the model, this varies the model e.g. nodesize, ntree etc. 
+  #                   this is a list with names of the parameters and values
+  # 11) data_df: 
+  # 12) names_col: 
+  # 13) out_dir: output dir
+  # 14) out_suffix: output suffix
   #
   # OUTPUTS:
   #
@@ -264,10 +267,12 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     browser()
     
     #debug(run_model_fun)
+    #run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,data_testing=NULL,num_cores=1,out_dir=".",out_suffix=""){
+      
     lucc_model_obj <- run_model_fun(data_df=L_df, #note this can be a list
                               model_formula_str = model_formula_str,
                               model_opt=model_opt, #"logistic",
-                              model_param=NULL,
+                              model_param=model_param,
                               data_testing=T_df, #note this can be a list
                               num_cores=num_cores,
                               out_dir=out_dir,
