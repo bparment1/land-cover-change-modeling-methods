@@ -5,7 +5,7 @@
 #
 #AUTHORS: Hichem Omrani, Benoit Parmentier                                             
 #DATE CREATED: 05/09/2018 
-#DATE MODIFIED: 06/25/2018
+#DATE MODIFIED: 06/27/2018
 #Version: 1
 #PROJECT: LUCC LISER modeling
 #TO DO:
@@ -66,9 +66,9 @@ script_path <- "/media/dan/Data/land-cover-change-modeling-methods/scripts"
 # Call all needed functions used to perform land use analysis, data normalisation, data split, calibration, validation, mapping ... 
 
 source(file.path(script_path,"needed_functions1_06252018.R"))
-source(file.path(script_path,"main_for_3studies_06252018.R")) 
+source(file.path(script_path,"main_for_3studies_06262018.R")) 
 source(file.path(script_path,"mapping_05092018.R"))
-source(file.path(script_path,"modeling_methods_lucc_functions_06252018.R"))
+source(file.path(script_path,"modeling_methods_lucc_functions_06272018.R"))
 
 #####  Parameters and argument set up ###########
 
