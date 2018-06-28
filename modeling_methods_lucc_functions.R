@@ -125,12 +125,34 @@ predict_random_forest_val <- function(i,list_mod,data_testing,model_param=NULL){
                               predict.all= predict_all,
                               type='response') #for ranger package random forest
   
-  
+  #predicted_rf_obj2 <- predict(mod_rf,
+  #                            data=data_v,
+  #                            predict.all= F,
+  #                            type='response') #for ranger package random forest
+  #table(as.numeric(as.character(predicted_rf_obj2$predictions)))
+  #test <- as.numeric(predicted_val >= 0.5)
+  #test
+  #table(test,as.numeric(as.character(predicted_rf_obj2$predictions)))
+  #Browse[5]> table(test)
+  #test
+  #0     1 
+  #33000  1826 
+  #Browse[5]> table(as.numeric(as.character(predicted_rf_obj2$predictions)))
+  #
+  #0     1 
+  #33002  1824 
+  #Browse[5]> table(test,as.numeric(as.character(predicted_rf_obj2$predictions)))
+  #
+  #test     0     1
+  #0 33000     0
+  #1     2  1824
+  #Browse
+  #
   predicted_all <- (predicted_rf_obj$predictions) - 1 #reclassifify in 0-1
   
   predicted_val <- rowMeans(predicted_all)
   histogram(predicted_val)
-  #index_val <- predicted_rf_mat[,2] #probabilities
+  index_val <- predicted_rf_mat[,2] #probabilities
   
   predicted_obj <- list(predicted_val,predicted_all,predicted_rf_obj)
   names(predicted_obj) <- c("predicted_val","predicted_all","predicted_rf_obj")
@@ -143,7 +165,7 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
   # Goal: Function to run models using logistic and randomForest methods.
   #
   # CREATED: 05/09/2018
-  # MODIFIED: 06/27/2018
+  # MODIFIED: 06/28/2018
   # AUTHORS: Benoit Parmentier
   # INPUTS:
   # 1) data_df: input data.frame with data used in modeling
@@ -240,13 +262,14 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
     
     if(!is.null(data_testing)){
       #
-      debug(predict_random_forest_val)
-      test <- predict_random_forest_val(1,list_mod=list_mod[[1]],data_testing=data_testing)
+      #debug(predict_random_forest_val)
+      #test <- predict_random_forest_val(1,list_mod=list_mod[[1]],data_testing=data_testing,model_param)
       
       list_predicted_val <- mclapply(1:length(data_df),
                                      FUN=predict_random_forest_val,
                                      list_mod=list_mod,
                                      data_testing=data_testing,
+                                     model_param=model_param,
                                      mc.preschedule = FALSE,
                                      mc.cores =num_cores)
     } else{
