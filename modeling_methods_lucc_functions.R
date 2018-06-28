@@ -56,7 +56,7 @@ run_logistic_fun <- function(i,model_formula_str,data_df){
 }
 
 run_random_forest_fun <- function(i, model_formula_str, data_df,
-                                  ntree=100,nodesize=5){
+                                  ntree=100,nodesize=5,num_cores=num_cores=1){
   #Function to run random forest model
   #We use randomForest in this implementation.
   
@@ -77,10 +77,9 @@ run_random_forest_fun <- function(i, model_formula_str, data_df,
   mod_rf <- ranger(formula=as.formula(model_formula_str), 
                       data = data_input, 
                       num.trees = ntree, 
-                      #mtry = , 
                       write.forest = TRUE, # save ranger.forest object, this is required for prediction 
                       probability = FALSE, 
-                      num.threads = 2, 
+                      num.threads = num_cores, 
                       importance="none", 
                       save.memory = FALSE)
   
@@ -108,9 +107,15 @@ predict_logistic_val <- function(i,list_mod,data_testing){
   return(predicted_val)
 }
 
-predict_random_forest_val <- function(i,list_mod,data_testing,model_param=NULL){
-  #Predictions using random forest model
+predict_random_forest_val <- function(i,list_mod,data_testing){
   #
+  #Goal: Use fitted model from "ranger" package to predict using random forest method
+  #AUTHORS: Benoit Parmentier
+  #CREATED: 05/09/2018
+  #MODIFIED: 06/28/2018
+  
+  ###### Start script #######
+  
   if(!is.null(model_param)){
     predict_all <- model_param$predict_all #Keep prediction for every trees 
   }else{
@@ -125,35 +130,11 @@ predict_random_forest_val <- function(i,list_mod,data_testing,model_param=NULL){
                               predict.all= predict_all,
                               type='response') #for ranger package random forest
   
-  #predicted_rf_obj2 <- predict(mod_rf,
-  #                            data=data_v,
-  #                            predict.all= F,
-  #                            type='response') #for ranger package random forest
-  #table(as.numeric(as.character(predicted_rf_obj2$predictions)))
-  #test <- as.numeric(predicted_val >= 0.5)
-  #test
-  #table(test,as.numeric(as.character(predicted_rf_obj2$predictions)))
-  #Browse[5]> table(test)
-  #test
-  #0     1 
-  #33000  1826 
-  #Browse[5]> table(as.numeric(as.character(predicted_rf_obj2$predictions)))
-  #
-  #0     1 
-  #33002  1824 
-  #Browse[5]> table(test,as.numeric(as.character(predicted_rf_obj2$predictions)))
-  #
-  #test     0     1
-  #0 33000     0
-  #1     2  1824
-  #Browse
-  #
   predicted_all <- (predicted_rf_obj$predictions) - 1 #reclassifify in 0-1
   
   predicted_val <- rowMeans(predicted_all)
   histogram(predicted_val)
-  index_val <- predicted_rf_mat[,2] #probabilities
-  
+
   predicted_obj <- list(predicted_val,predicted_all,predicted_rf_obj)
   names(predicted_obj) <- c("predicted_val","predicted_all","predicted_rf_obj")
   
@@ -256,12 +237,12 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
                          model_formula_str=model_formula_str,
                          data_df=data_df,
                          ntree=ntree,
-                         nodesize=nodesize)
-                         #mc.preschedule = FALSE,
-                         #mc.cores =num_cores)
+                         nodesize=nodesize,
+                         num_cores=num_cores)
     
     if(!is.null(data_testing)){
       #
+      browser()
       #debug(predict_random_forest_val)
       #test <- predict_random_forest_val(1,list_mod=list_mod[[1]],data_testing=data_testing,model_param)
       
@@ -339,5 +320,34 @@ ROC_evaluation_fun <- function(i,list_data,y_var,predicted_val,save_fig=T,out_su
   
 }
 
+generate_change_from_quantity <- function(y_predicted,data_df,y_obs){
+  #
+  #
+  
+  ###############
+  
+  df_summary <- as.data.frame(table(as.numeric(data_df[,y_obs])))
+  quantity_change <- df_summary[2,2]
+  
+  #quantity_change <- sum(as.numeric(L_df[,yvr])) #sum of ones
+  ##Not efficient with large dataset    
+  df_val <- as.data.frame(y_predicted)
+  df_val$ID <- 1:length(y_predicted)
+  
+  df_val <- arrange(df_val,desc(y_predicted))
+  #y_predicted_ranked <- sort(y_predicted)
+  #y_fitted_ranked <- sort(y_fitted)
+  
+  #y_predicted_hard <- y_predicted_ranked[1:quantity_change] 
+  #y_fitted_hard <- y_fitted_ranked[1:quantity_change] 
+  
+  df_val$y_predicted_hard <- 0
+  df_val$y_predicted_ranked <- 1:length(y_predicted)
+  
+  df_val$y_predicted_hard <- df_val$y_predicted_ranked > quantity_change
+  df_val$y_predicted_hard <- as.numeric(df_val$y_predicted_hard)
+  
+  return(df_val)
+}
 
 ############################### END OF SCRIPT ################################
