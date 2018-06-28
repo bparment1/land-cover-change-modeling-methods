@@ -66,12 +66,11 @@ script_path <- "/media/dan/Data/land-cover-change-modeling-methods/scripts"
 # Call all needed functions used to perform land use analysis, data normalisation, data split, calibration, validation, mapping ... 
 
 source(file.path(script_path,"needed_functions1_06252018.R"))
-source(file.path(script_path,"main_for_3studies_06262018.R")) 
+source(file.path(script_path,"main_for_3studies_06272018.R")) 
 source(file.path(script_path,"mapping_05092018.R"))
-source(file.path(script_path,"modeling_methods_lucc_functions_06272018.R"))
+source(file.path(script_path,"modeling_methods_lucc_functions_06282018c.R"))
 
 #####  Parameters and argument set up ###########
-
 
 # setwd("//crc/Mildred/Mobility/Hichem/EMS-big data paper-March2018/R codes-EMS paper/")
 
@@ -195,6 +194,8 @@ names_col <- c("id","x_coord","y_coord","LU78","LU98","x1","x2","x3","x4","x5","
 #model_opt <- "logistic"
 model_opt <- "randomForest"
 
+model_param <- list(ntree=100,node_size=1)
+
 results_randomeForest_obj <- run_land_change_models(change1=r$ch, 
                                                no_change1=r$no_ch, 
                                                xvr=6:11,  #covariates
@@ -204,6 +205,7 @@ results_randomeForest_obj <- run_land_change_models(change1=r$ch,
                                                K=3, #?
                                                sampling_name=splitdt, #sampling method/strategy? # Note that a function is passed here!!!
                                                model_opt=model_opt,
+                                               model_param = model_param,
                                                data_df=NULL,
                                                names_col=names_col,
                                                out_dir=NULL,
