@@ -56,7 +56,7 @@ run_logistic_fun <- function(i,model_formula_str,data_df){
 }
 
 run_random_forest_fun <- function(i, model_formula_str, data_df,
-                                  ntree=100,nodesize=5,num_cores=num_cores=1){
+                                  ntree=100,nodesize=5,num_cores=1){
   #Function to run random forest model
   #We use randomForest in this implementation.
   
@@ -253,6 +253,15 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
                                      model_param=model_param,
                                      mc.preschedule = FALSE,
                                      mc.cores =num_cores)
+      
+      list_predicted_val <- lapply(1:length(data_df),
+                                     FUN=predict_random_forest_val,
+                                     list_mod=list_mod,
+                                     data_testing=data_testing,
+                                     model_param=model_param)
+                                     #mc.preschedule = FALSE,
+                                     #mc.cores =num_cores)
+      
     } else{
       list_predicted_val <- NULL
     }
