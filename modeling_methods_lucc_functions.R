@@ -107,12 +107,12 @@ predict_logistic_val <- function(i,list_mod,data_testing){
   return(predicted_val)
 }
 
-predict_random_forest_val <- function(i,list_mod,data_testing){
+predict_random_forest_val <- function(i,list_mod,data_testing,model_param){
   #
   #Goal: Use fitted model from "ranger" package to predict using random forest method
   #AUTHORS: Benoit Parmentier
   #CREATED: 05/09/2018
-  #MODIFIED: 06/28/2018
+  #MODIFIED: 06/29/2018
   
   ###### Start script #######
   
@@ -246,13 +246,13 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
       #debug(predict_random_forest_val)
       #test <- predict_random_forest_val(1,list_mod=list_mod[[1]],data_testing=data_testing,model_param)
       
-      list_predicted_val <- mclapply(1:length(data_df),
-                                     FUN=predict_random_forest_val,
-                                     list_mod=list_mod,
-                                     data_testing=data_testing,
-                                     model_param=model_param,
-                                     mc.preschedule = FALSE,
-                                     mc.cores =num_cores)
+      #list_predicted_val <- mclapply(1:length(data_df),
+      #                               FUN=predict_random_forest_val,
+      #                               list_mod=list_mod,
+      #                               data_testing=data_testing,
+      #                               model_param=model_param,
+      #                               mc.preschedule = FALSE,
+      #                               mc.cores =num_cores)
       
       list_predicted_val <- lapply(1:length(data_df),
                                      FUN=predict_random_forest_val,
