@@ -5,7 +5,7 @@
 #
 #AUTHORS: Hichem Omrani, Benoit Parmentier                                             
 #DATE CREATED: 05/09/2018 
-#DATE MODIFIED: 06/27/2018
+#DATE MODIFIED: 06/29/2018
 #Version: 1
 #PROJECT: LUCC LISER modeling
 #TO DO:
@@ -65,10 +65,10 @@ script_path <- "/media/dan/Data/land-cover-change-modeling-methods/scripts"
 
 # Call all needed functions used to perform land use analysis, data normalisation, data split, calibration, validation, mapping ... 
 
-source(file.path(script_path,"needed_functions1_06252018.R"))
-source(file.path(script_path,"main_for_3studies_06272018.R")) 
+source(file.path(script_path,"needed_functions1_06292018.R"))
+source(file.path(script_path,"main_for_3studies_06292018.R")) 
 source(file.path(script_path,"mapping_05092018.R"))
-source(file.path(script_path,"modeling_methods_lucc_functions_06282018c.R"))
+source(file.path(script_path,"modeling_methods_lucc_functions_06292018.R"))
 
 #####  Parameters and argument set up ###########
 
@@ -169,7 +169,7 @@ results_mus_SR_invP = replicate(N, run_ltm(r$ch, r$no_ch, 6:11, length(6:11), 14
 
 ####
 
-debug(run_land_change_models)
+#debug(run_land_change_models)
 names_col <- c("id","x_coord","y_coord","LU78","LU98","x1","x2","x3","x4","x5","x6","x7","y_var")
 model_opt <- "logistic"
 #model_opt <- "randomForest"
@@ -189,7 +189,7 @@ results_logistic_obj <- run_land_change_models(change1=r$ch,
                        out_suffix=NULL) 
   
 
-undebug(run_land_change_models)
+#undebug(run_land_change_models)
 names_col <- c("id","x_coord","y_coord","LU78","LU98","x1","x2","x3","x4","x5","x6","x7","y_var")
 #model_opt <- "logistic"
 model_opt <- "randomForest"
