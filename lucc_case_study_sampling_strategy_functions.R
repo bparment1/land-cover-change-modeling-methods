@@ -304,6 +304,8 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
       
     }
 
+    browser()
+    
     ### store the values
     L_df$y_fitted <- y_fitted
     T_df$y_pred <- y_predicted
