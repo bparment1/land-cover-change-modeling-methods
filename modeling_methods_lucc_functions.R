@@ -112,7 +112,7 @@ predict_random_forest_val <- function(i,list_mod,data_testing,model_param){
   #Goal: Use fitted model from "ranger" package to predict using random forest method
   #AUTHORS: Benoit Parmentier
   #CREATED: 05/09/2018
-  #MODIFIED: 06/29/2018
+  #MODIFIED: 07/01/2018
   
   ###### Start script #######
   
@@ -130,13 +130,19 @@ predict_random_forest_val <- function(i,list_mod,data_testing,model_param){
                               predict.all= predict_all,
                               type='response') #for ranger package random forest
   
-  predicted_all <- (predicted_rf_obj$predictions) - 1 #reclassifify in 0-1
-  
-  predicted_val <- rowMeans(predicted_all)
+  if(predict_all==TRUE){
+    predicted_df <- (predicted_rf_obj$predictions) - 1 #reclassifify in 0-1
+    predicted_val <- rowMeans(predicted_df)
+  }else{
+    predicted_val <- (predicted_rf_obj$predictions)
+    predicted_df <- NULL
+  }
+  #dim(predict_all)
+  #predict_all=T
   histogram(predicted_val)
 
-  predicted_obj <- list(predicted_val,predicted_all,predicted_rf_obj)
-  names(predicted_obj) <- c("predicted_val","predicted_all","predicted_rf_obj")
+  predicted_obj <- list(predicted_val,predicted_df,predicted_rf_obj)
+  names(predicted_obj) <- c("predicted_val","predicted_df","predicted_rf_obj")
   
   return(predicted_obj)
 }
@@ -244,7 +250,7 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
       #
       browser()
       #debug(predict_random_forest_val)
-      #test <- predict_random_forest_val(1,list_mod=list_mod[[1]],data_testing=data_testing,model_param)
+      #test <- predict_random_forest_val(1,list_mod=list_mod,data_testing=data_testing,model_param)
       
       #list_predicted_val <- mclapply(1:length(data_df),
       #                               FUN=predict_random_forest_val,
@@ -254,11 +260,12 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
       #                               mc.preschedule = FALSE,
       #                               mc.cores =num_cores)
       
+      model_param_predict <- list(predict_all=TRUE) #if you want to retain perdiction by trees
       list_predicted_val <- lapply(1:length(data_df),
                                      FUN=predict_random_forest_val,
                                      list_mod=list_mod,
                                      data_testing=data_testing,
-                                     model_param=model_param)
+                                     model_param=model_param_predict)
                                      #mc.preschedule = FALSE,
                                      #mc.cores =num_cores)
       
