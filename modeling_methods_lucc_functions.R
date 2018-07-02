@@ -177,6 +177,7 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
     }
   }
   
+  browser()
   if(model_opt=="logistic"){
     
     #browser()
@@ -192,6 +193,8 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
     #mclapply used to return a list that is the same length as the x component (in this case x=1:length)
     #mc.preschedule=False because there aren't large numbers of x values 
     ### Apprend prediction to training data.frame!!!
+    
+    y_fitted_soft <- lapply(list_mod,function(x){x$fitted.value})
     
     if(!is.null(data_testing)){
       #
@@ -287,6 +290,7 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
   } 
   
   ####### Prepare return object 
+  browser()
   
   model_obj <- list(list_mod,list_predicted_val,y_fitted_soft,data_df,data_testing)
   names(model_obj) <- c("mod","predicted_val","y_fitted_soft","data_training","data_testing")
@@ -348,32 +352,40 @@ ROC_evaluation_fun <- function(i,list_data,y_var,predicted_val,save_fig=T,out_su
   
 }
 
-generate_change_from_quantity <- function(y_predicted,data_df,y_obs){
+generate_change_from_quantity <- function(y_predicted_soft,data_df,y_obs){
+  # This function genetate boolean change (0,1) for given input
+  #
+  # AUTHORS: Benoit Parmentier
+  # CREATED: 06/03/2018
+  # MODIFIED: 07/02/2018
+  #
+  # INPUTS:
+  # 1) y_predicted_soft: boolean 1-0 variable of change
+  # 2) data_df: input dataset 
+  # 3) y_obs: column name for observed change.
+  # OUTPUTS:
   #
   #
   
-  ###############
   
-  df_summary <- as.data.frame(table(as.numeric(data_df[,y_obs])))
+  ####### Start script #########
+  
+  df_summary <- as.data.frame(table(data_df[,y_obs]))
+  
   quantity_change <- df_summary[2,2]
   
   #quantity_change <- sum(as.numeric(L_df[,yvr])) #sum of ones
   ##Not efficient with large dataset    
-  df_val <- as.data.frame(y_predicted)
-  df_val$ID <- 1:length(y_predicted)
+  df_val <- as.data.frame(y_predicted_soft)
+  df_val$ID <- 1:length(y_predicted_soft)
   
-  df_val <- arrange(df_val,desc(y_predicted))
-  #y_predicted_ranked <- sort(y_predicted)
-  #y_fitted_ranked <- sort(y_fitted)
-  
-  #y_predicted_hard <- y_predicted_ranked[1:quantity_change] 
-  #y_fitted_hard <- y_fitted_ranked[1:quantity_change] 
+  df_val <- arrange(df_val,desc(y_predicted_soft)) # rank soft predicted values based from high to low
   
   df_val$y_predicted_hard <- 0
-  df_val$y_predicted_ranked <- 1:length(y_predicted)
+  df_val$y_predicted_ranked <- 1:length(y_predicted_soft)
   
-  df_val$y_predicted_hard <- df_val$y_predicted_ranked > quantity_change
-  df_val$y_predicted_hard <- as.numeric(df_val$y_predicted_hard)
+  df_val$y_predicted_hard <- df_val$y_predicted_ranked <= quantity_change #change if ranked val is greater or equal to number of observed change
+  df_val$y_predicted_hard <- as.numeric(df_val$y_predicted_hard) 
   
   return(df_val)
 }
