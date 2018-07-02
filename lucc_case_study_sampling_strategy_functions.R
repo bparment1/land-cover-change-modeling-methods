@@ -5,12 +5,12 @@
 #
 #AUTHORS: Benoit Parmentier,Hichem Omrani                                            
 #DATE CREATED: 05/09/2018 
-#DATE MODIFIED: 06/25/2018
+#DATE MODIFIED: 07/02/2018
 #Version: 1
 #PROJECT: LUCC LISER modeling
 #TO DO: provide options and functions to take in raster inputs
 #
-#COMMIT: reorganization of code
+#COMMIT: adding code to get soft outputs for random forest.
 #
 #################################################################################################
 
@@ -280,7 +280,7 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     #names(test_glm)
     #str(test_glm$mod[[1]])
     
-    #browser() #this is a break point
+    browser() #this is a break point
     
     if(model_opt=="logistic"){
       y_fitted <- lucc_model_obj$mod[[1]]$fitted.values #predicted on training
@@ -296,19 +296,38 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     
     if(model_opt=="randomForest"){
       #add here, not running right now on the laptop
+      #names(lucc_model_obj)
+      #lucc_model_obj$predicted_val[[1]]$predicted_val
+      names(lucc_model_obj$mod[[1]])
+      lucc_model_obj$mod[[1]]$predictions
       
-      y_fitted <- lucc_model_obj$mod[[1]]$fitted.values #predicted on training
+      y_fitted_hard <- as.numeric(as.character(lucc_model_obj$mod[[1]]$predictions)) #training  
+      y_fitted_soft <- lucc_model_obj$y_fitted_soft[[1]] #training
+      
+      #model_param_predict <- list(predict_all=TRUE) #if you want to retain perdiction by trees
+      #list_predicted_val <- lapply(1:length(data_df),
+      #                             FUN=predict_random_forest_val,
+      #                             list_mod=list_mod,
+      #                             data_testing=data_testing,
+      #                             model_param=model_param_predict)
+      #mc.preschedule = FALSE,
+      #mc.cores =num_cores)
+
+      #Browse[1]> names(lucc_model_obj$predicted_val[[1]])
+      #[1] "predicted_val"    "predicted_df"     "predicted_rf_obj"
+      
+      #y_fitted <- lucc_model_obj$mod[[1]]$fitted.values #predicted on training
       ## Based on validation
-      y_predicted <- (lucc_model_obj$predicted_val[[1]]) #predicted on testing
-      
-      
+      #y_predicted <- (lucc_model_obj$predicted_val[[1]]) #predicted on testing
+      y_predicted_soft <- lucc_model_obj$predicted_val[[1]]$predicted_val #testing
+      y_predicted_hard <- as.numeric(y_predicted_soft > 0.5) # more than 50% of trees have been predicted as change
     }
 
     browser()
     
-    ### store the values
-    L_df$y_fitted <- y_fitted
-    T_df$y_pred <- y_predicted
+    ### store the values: to make the code work with previous script from Hichem
+    L_df$y_fitted <- y_fitted_soft 
+    T_df$y_pred <- y_predicted #soft
 
     L_df$y_fitted_hard <- y_fitted_hard
     T_df$y_pred_hard <- y_predicted_hard
@@ -326,27 +345,37 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
   ###### Part 2: generate accuracy metrics #####
   
   ### Crosstabutlation of observed versus predicted
-  cm = table(newT[,yvr], newT[,yvr+2]) 
+  index_pred_hard <- which(names(newT)=="y_pred_hard")
+  cm = table(newT[,yvr], newT[,index_pred_hard]) 
   
   print("cross-tab from the LTM model: ")
   print(cm)
   
-  errors = apply(newT, 1, metrics, yvr, yvr_predicted)
+  #errors = apply(newT, 1, metrics, yvr, yvr_predicted)
+  errors = apply(newT, 1, metrics, yvr, index_pred_hard)
+  #class(errors)
   
   # Total Operating Characteristic - TOC and ROC curves
   # Note that it should be yvr +1 for TOC? since this is the activation
-  
-  tocd <- TOC(newT[,yvr], newT[,yvr+2], mask=NULL, nthres = 100)
+  if(class(newT[,yvr])=="factor"){
+    newT[,yvr] <- as.numeric(as.character(newT[,yvr]))
+  }
+  tocd <- TOC(newT[,yvr], newT[,index_pred_hard], mask=NULL, nthres = 100)
   
   pcm = pcm_evaluation(cm)
   # mean(pcm)
   
   ##### This is the return object with all the results
+  
   res= list(pcm_ltm = pcm, 
             cm_ltm = cm, 
             errors_ltm = errors, 
             toc_ltm =tocd,  
-            change_ltm = change1, no_change_ltm = no_change1, newT = newT)
+            change_ltm = change1, 
+            no_change_ltm = no_change1, 
+            newT = newT, #testing
+            L_df= L_df #training
+            )
   
   return(res)
 }
