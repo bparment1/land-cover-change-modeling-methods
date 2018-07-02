@@ -245,7 +245,19 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
                          ntree=ntree,
                          nodesize=nodesize,
                          num_cores=num_cores)
+    browser()
+    model_param_predict <- list(predict_all=TRUE) #if you want to retain perdiction by trees
+    list_fitted_val <- mclapply(1:length(data_df),
+                                 FUN=predict_random_forest_val,
+                                 list_mod=list_mod,
+                                 data_testing=data_df,
+                                 model_param=model_param_predict,
+                                 mc.preschedule = FALSE,
+                                 mc.cores =num_cores)
     
+    y_fitted_soft <- lapply(list_fitted_val,function(x){x$predicted_val})
+    #mc.preschedule = FALSE,
+    #mc.cores =num_cores)
     if(!is.null(data_testing)){
       #
       browser()
@@ -276,8 +288,8 @@ run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,d
   
   ####### Prepare return object 
   
-  model_obj <- list(list_mod,list_predicted_val,data_df,data_testing)
-  names(model_obj) <- c("mod","predicted_val","data_training","data_testing")
+  model_obj <- list(list_mod,list_predicted_val,y_fitted_soft,data_df,data_testing)
+  names(model_obj) <- c("mod","predicted_val","y_fitted_soft","data_training","data_testing")
   return(model_obj)
 } 
 
