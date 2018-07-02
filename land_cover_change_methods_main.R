@@ -5,13 +5,13 @@
 #
 #AUTHORS: Hichem Omrani, Benoit Parmentier                                             
 #DATE CREATED: 05/09/2018 
-#DATE MODIFIED: 07/01/2018
+#DATE MODIFIED: 07/02/2018
 #Version: 1
 #PROJECT: LUCC LISER modeling
 #TO DO:
 #
-#COMMIT: reorganization of code
-#
+#COMMIT: adding soft output to randomforest
+
 #################################################################################################
 
 ###Loading R library and packages                                                      
@@ -66,9 +66,9 @@ script_path <- "/media/dan/Data/land-cover-change-modeling-methods/scripts"
 # Call all needed functions used to perform land use analysis, data normalisation, data split, calibration, validation, mapping ... 
 
 source(file.path(script_path,"needed_functions1_06292018.R"))
-source(file.path(script_path,"main_for_3studies_07012018.R")) 
+source(file.path(script_path,"main_for_3studies_07022018b.R")) 
 source(file.path(script_path,"mapping_05092018.R"))
-source(file.path(script_path,"modeling_methods_lucc_functions_07012018.R"))
+source(file.path(script_path,"modeling_methods_lucc_functions_07022018.R"))
 
 #####  Parameters and argument set up ###########
 
