@@ -269,11 +269,11 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     #debug(run_model_fun)
     #run_model_fun <- function(data_df,model_formula_str,model_opt,model_param=NULL,data_testing=NULL,num_cores=1,out_dir=".",out_suffix=""){
       
-    lucc_model_obj <- run_model_fun(data_df=L_df, #note this can be a list
+    lucc_model_obj <- run_model_fun(data_df=L_df, #note this can be a list of data.frames with training dataset
                               model_formula_str = model_formula_str,
                               model_opt=model_opt, #"logistic",
                               model_param=model_param,
-                              data_testing=T_df, #note this can be a list
+                              data_testing=T_df, #note this can be a list of data.frames with testing dataset 
                               num_cores=num_cores,
                               out_dir=out_dir,
                               out_suffix=out_suffix)
@@ -283,13 +283,30 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     browser() #this is a break point
     
     if(model_opt=="logistic"){
-      y_fitted <- lucc_model_obj$mod[[1]]$fitted.values #predicted on training
+      y_fitted_soft <- lucc_model_obj$mod[[1]]$fitted.values #predicted on training
       ## Based on validation
-      y_predicted <- (lucc_model_obj$predicted_val[[1]]) #predicted on testing
+      y_predicted_soft <- (lucc_model_obj$predicted_val[[1]]) #predicted on testing
       ### hardening the soft prediction:
       ### find the threshold based on quantity!!!
-      #generate_change_from_quantity <- function(y_predicted,data_df,y_obs)
-        
+      #debug(generate_change_from_quantity)
+      y_obs <- names(L_df)[yvr] # observed change variable
+      
+      #mean(as.numeric(as.character(L_df[,y_obs])))
+      #[1] 0.05292023, test this as threshold
+      
+      df_val_fitted <- generate_change_from_quantity(y_predicted_soft =y_fitted_soft,
+                                            data_df=L_df,
+                                            y_obs=y_obs)
+      y_obs <- names(T_df)[yvr] # observed change variable
+      df_val_predicted <- generate_change_from_quantity(y_predicted_soft =y_predicted_soft,
+                                              data_df=T_df,
+                                              y_obs=y_obs)
+      
+      y_fitted_hard <- df_val_fitted$y_predicted_hard
+      y_predicted_hard <- df_val_predicted$y_predicted_hard
+      
+      #y_predicted_hard <- as.numeric(y_predicted_soft > 0.5) # more than 50% of trees have been predicted as change
+      
     }
     
     browser()
@@ -327,7 +344,7 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
     
     ### store the values: to make the code work with previous script from Hichem
     L_df$y_fitted <- y_fitted_soft 
-    T_df$y_pred <- y_predicted #soft
+    T_df$y_pred <- y_predicted_soft #soft
 
     L_df$y_fitted_hard <- y_fitted_hard
     T_df$y_pred_hard <- y_predicted_hard
