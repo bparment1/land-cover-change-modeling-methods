@@ -341,6 +341,7 @@ fnLUCAnalysis_maxP <- function(l, t, xvr, yvr, m, th) {
   #Data preprocessing
   
   set.seed(2)
+  #debug(LTM_calibration)
   nn = LTM_calibration(l, xvr, yvr, m) 
   
   ## prediction <- predict(nn, t[,xvr])
