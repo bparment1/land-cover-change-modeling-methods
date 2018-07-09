@@ -130,7 +130,7 @@ run_ltm <- function(change1, no_change1, xvr, m, yvr, ratio, K, sampling_name) {
   print("th = ") 
   print(threshold) 
   #############
-  
+  #debug(fnLUCAnalysis_maxP)
   #### THis function run LTM (nnet) for training and testing
   newT = fnLUCAnalysis_maxP(L, T, xvr, yvr, m, threshold) # dataset1N; dataset1N, T, rbind(L,T)
   #newT is a matrix with same size but two more columns, one for the activation and one for the hardening into one and zero
@@ -233,19 +233,48 @@ run_land_change_models <- function(change1, no_change1, xvr, m, yvr, ratio, K,
   
   #### THis function run LTM (nnet) for training and testing
   if(model_opt=="ltm"){
+    
+    
+    #### Part 1: generate training and testing and run LTM
+    
+    ### Careful sampling name is a function!!!!!
+    
+    dataset1 = rbind( cbind(change1, rep(1, nrow(change1)) ), cbind(no_change1, rep(0, nrow(no_change1) ))) ### 
+    
     ### This is a user defined function, rescaling
     dataset1N <- fn.normalize(dataset1, xvr, yvr) # dataset1, scaling by min and max: x- min(x)/(max (x) -min(x))
     # data split  according to the sampling strategy 
+    LT = sampling_name(dataset1N, yvr, ratio) # output is alist
+    T = LT$T # matrix of data for testing
+    L = LT$T # matrix of data for training
+    L_df <- as.data.frame(L) #calibration/tra   ining data
+    names(L_df)<- names_col
+    T_df <- as.data.frame(T)
+    names(T_df)<- names_col
     
+    #############
+    threshold = round(nrow(T[T[,yvr]==1, ]) / nrow(T), 2)  # T ; dataset1N
+    print("th = ") 
+    print(threshold) 
+    #############
+    #debug(fnLUCAnalysis_maxP)
+    #### THis function run LTM (nnet) for training and testing
     newT = fnLUCAnalysis_maxP(L, T, xvr, yvr, m, threshold) # dataset1N; dataset1N, T, rbind(L,T)
     #newT is a matrix with same size but two more columns, one for the activation and one for the hardening into one and zero
-    ###
-    yvr_predicted <- yvr +2
+    ###    yvr_predicted <- yvr +2
+    #yvr+2
+    #newT
+    newT <- as.data.frame(newT)
+    names(newT) <- c(names_col,"y_pred_soft","y_pred_hard")
+    y_fitted_hard <- NA #need to generate this for our analysis
+    y_fitted_soft <- NA #
+    y_predicted_hard <- newT$y_pred_hard
+    y_predicted_soft <- newT$y_pred_soft
     
   }
   
   if(model_opt!="ltm"){
-    L_df <- as.data.frame(L) #calibration/training data
+    L_df <- as.data.frame(L) #calibration/tra   ining data
     #dim(L)
     #dim(data_df)
     
